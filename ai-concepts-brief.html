@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gen AI Concepts for Decision-Makers — 1-Page Brief</title>
+<style>
+  :root{
+    color-scheme:light;
+    --ink:#12151c; --sub:#4b5563; --line:#e3e7ee; --bg:#ffffff;
+    --brand:#0f766e; --brand2:#0e7490; --soft:#e8f4f2; --soft2:#eef6f9;
+    --amber:#b45309; --amber-soft:#fdf3e3; --red:#b91c1c; --green:#0a7a54; --green-soft:#e7f8f1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#eef1f5;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.42;font-size:12.5px}
+  .page{max-width:940px;margin:16px auto;background:var(--bg);padding:26px 30px 30px;box-shadow:0 6px 24px rgba(0,0,0,.08);border-radius:10px}
+  h1{font-size:21px;margin:0;letter-spacing:-.3px}
+  .sub{color:var(--sub);font-size:12px;margin:3px 0 0}
+  .rule{height:3px;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:3px;margin:12px 0 16px}
+  h2{font-size:12.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--brand);margin:0 0 7px;border-left:3px solid var(--brand);padding-left:8px}
+  .wxh{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
+  .wxh .col h3{margin:0 0 5px;font-size:13px}
+  .wxh .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:var(--brand);border-radius:5px;padding:2px 7px;margin-bottom:6px}
+  .wxh p{margin:0 0 6px;color:var(--sub)}
+  .wxh ul{margin:0;padding-left:15px;color:var(--sub)}
+  .wxh li{margin:3px 0}
+  .gloss{display:grid;grid-template-columns:1fr 1fr;gap:4px 22px;margin:0 0 18px;font-size:12px}
+  .gloss div{padding:4px 0;border-bottom:1px dotted var(--line)}
+  .gloss b{color:var(--ink)}
+  .diagram{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--soft2);margin-bottom:6px}
+  .cap{font-size:11px;color:var(--sub);margin:0 0 16px;text-align:center}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+  th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--sub);background:var(--soft)}
+  td.lim{font-weight:700;color:var(--ink);width:30%}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px}
+  .box{border:1px solid var(--line);border-radius:9px;padding:12px 14px}
+  .box.gov{background:#fbfaf7;border-color:#eadfce}
+  .box.ops{background:#f7fafb;border-color:#d9e6ea}
+  .box.val{background:var(--green-soft);border-color:#cdeede}
+  .box h2{margin-top:0}
+  .box p{margin:0 0 6px;color:var(--sub)}
+  .box ul{margin:4px 0 0;padding-left:16px;color:var(--sub)}
+  .box li{margin:3px 0}
+  .box b{color:var(--ink)}
+  .foot{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--sub);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+  @media print{body{background:#fff}.page{box-shadow:none;margin:0;max-width:none;border-radius:0;padding:14px}}
+  @media(max-width:720px){.wxh,.gloss,.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Gen AI Concepts for Decision-Makers</h1>
+  <p class="sub">A one-page orientation for leaders — what Gen AI is, how it works end-to-end, where it breaks, and how we govern and measure it. Built on the Why / What / How model.</p>
+  <div class="rule"></div>
+
+  <!-- WHY / WHAT / HOW -->
+  <div class="wxh">
+    <div class="col">
+      <span class="tag">WHY</span>
+      <h3>Why this matters now</h3>
+      <p>Modern Gen AI turns unstructured language and knowledge work into something we can automate, augment, and scale.</p>
+      <ul>
+        <li><b>Efficiency:</b> compress cost and cycle time on knowledge tasks.</li>
+        <li><b>Growth:</b> new products and experiences not previously feasible.</li>
+        <li><b>Risk of inaction:</b> competitors compound advantage while we wait.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <span class="tag">WHAT</span>
+      <h3>What it actually is</h3>
+      <p>A large language model (LLM) is a statistical engine that predicts text. It doesn't "know" facts — it generates plausible output from patterns.</p>
+      <ul>
+        <li>Powerful at language, synthesis, and reasoning-like tasks.</li>
+        <li>Not a database and not deterministic — it must be <em>engineered</em> into a reliable system.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <span class="tag">HOW</span>
+      <h3>How we make it useful</h3>
+      <p>Value comes from the <b>system around the model</b>, not the model alone: grounding it in our data, orchestrating steps, adding guardrails, and measuring output.</p>
+      <ul>
+        <li>Reference architecture below shows each layer + example tech.</li>
+        <li>Governance, LLMOps, and value measurement wrap the whole thing.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WHAT: concept glossary -->
+  <h2>Key concepts in one line each</h2>
+  <div class="gloss">
+    <div><b>Tokens &amp; context window:</b> the chunks a model reads/writes; the window caps how much it can consider at once.</div>
+    <div><b>Embeddings:</b> numeric meaning-vectors that power semantic search and retrieval.</div>
+    <div><b>RAG (retrieval-augmented generation):</b> fetch relevant company data, then have the model answer grounded in it.</div>
+    <div><b>Fine-tuning:</b> adapting a model's weights to a narrow task/style when prompting + RAG aren't enough.</div>
+    <div><b>Agents &amp; tools:</b> models that plan multi-step work and call tools/APIs to act, not just answer.</div>
+    <div><b>Evals:</b> test suites that score output quality — the difference between "demos well" and "works."</div>
+  </div>
+
+  <!-- HOW: reference architecture diagram -->
+  <h2>How · End-to-end reference architecture (with example tech per layer)</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 920 528" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">
+    <defs>
+      <style>
+        .band{fill:#ffffff;stroke:#cdd6dd;stroke-width:1.2;rx:8}
+        .lname{font-size:12.5px;font-weight:700;fill:#12151c}
+        .ldesc{font-size:9.5px;fill:#6b7280}
+        .chip{fill:#e8f4f2;stroke:#bfe0da;stroke-width:1}
+        .ctext{font-size:9.5px;fill:#0f5e57;font-weight:600}
+        .rail{fill:#fbf7ef;stroke:#e6d7bd;stroke-width:1.2}
+        .rail2{fill:#eef6f9;stroke:#cfe1e7;stroke-width:1.2}
+        .rtext{font-size:11px;font-weight:800;letter-spacing:1px}
+        .flow{font-size:9.5px;fill:#0e7490;font-weight:700}
+      </style>
+    </defs>
+
+    <!-- Left rail: Governance -->
+    <rect x="16" y="52" width="40" height="460" rx="9" class="rail"/>
+    <text x="36" y="282" class="rtext" fill="#9a6400" transform="rotate(-90 36 282)" text-anchor="middle">GOVERNANCE &amp; RISK</text>
+
+    <!-- Right rail: LLMOps -->
+    <rect x="864" y="52" width="40" height="460" rx="9" class="rail2"/>
+    <text x="884" y="282" class="rtext" fill="#0e7490" transform="rotate(90 884 282)" text-anchor="middle">LLMOPS / OBSERVABILITY</text>
+
+    <!-- Flow labels -->
+    <text x="460" y="28" class="flow" text-anchor="middle">▼  user request flows down the stack   ·   grounded response flows back up  ▲</text>
+
+    <!-- Bands: helper via repeated rects. Center area x 70..854 -->
+    <!-- Band 1: Application -->
+    <rect x="70" y="52" width="784" height="60" rx="8" class="band"/>
+    <text x="86" y="78" class="lname">1 · Application &amp; Experience</text>
+    <text x="86" y="94" class="ldesc">where users meet Gen AI</text>
+    <g>
+      <rect x="470" y="66" width="86" height="18" rx="9" class="chip"/><text x="513" y="79" class="ctext" text-anchor="middle">Chat / Copilot</text>
+      <rect x="562" y="66" width="70" height="18" rx="9" class="chip"/><text x="597" y="79" class="ctext" text-anchor="middle">Agent UX</text>
+      <rect x="638" y="66" width="78" height="18" rx="9" class="chip"/><text x="677" y="79" class="ctext" text-anchor="middle">Search / Q&amp;A</text>
+      <rect x="722" y="66" width="118" height="18" rx="9" class="chip"/><text x="781" y="79" class="ctext" text-anchor="middle">Workflow embed</text>
+    </g>
+
+    <!-- Band 2: Orchestration -->
+    <rect x="70" y="120" width="784" height="60" rx="8" class="band"/>
+    <text x="86" y="146" class="lname">2 · Orchestration</text>
+    <text x="86" y="162" class="ldesc">composes multi-step logic + tools</text>
+    <g>
+      <rect x="470" y="134" width="76" height="18" rx="9" class="chip"/><text x="508" y="147" class="ctext" text-anchor="middle">LangGraph</text>
+      <rect x="552" y="134" width="96" height="18" rx="9" class="chip"/><text x="600" y="147" class="ctext" text-anchor="middle">LlamaIndex</text>
+      <rect x="654" y="134" width="62" height="18" rx="9" class="chip"/><text x="685" y="147" class="ctext" text-anchor="middle">CrewAI</text>
+      <rect x="722" y="134" width="118" height="18" rx="9" class="chip"/><text x="781" y="147" class="ctext" text-anchor="middle">Google ADK / AutoGen</text>
+    </g>
+
+    <!-- Band 3: Gateway -->
+    <rect x="70" y="188" width="784" height="60" rx="8" class="band"/>
+    <text x="86" y="214" class="lname">3 · Gateway &amp; Routing</text>
+    <text x="86" y="230" class="ldesc">routes cheap vs frontier · cost, caching, guardrails</text>
+    <g>
+      <rect x="510" y="202" width="66" height="18" rx="9" class="chip"/><text x="543" y="215" class="ctext" text-anchor="middle">LiteLLM</text>
+      <rect x="582" y="202" width="92" height="18" rx="9" class="chip"/><text x="628" y="215" class="ctext" text-anchor="middle">OpenRouter</text>
+      <rect x="680" y="202" width="66" height="18" rx="9" class="chip"/><text x="713" y="215" class="ctext" text-anchor="middle">Portkey</text>
+      <rect x="752" y="202" width="88" height="18" rx="9" class="chip"/><text x="796" y="215" class="ctext" text-anchor="middle">Cmd Center</text>
+    </g>
+
+    <!-- Band 4: Foundation models + inference -->
+    <rect x="70" y="256" width="784" height="60" rx="8" class="band" fill="#f4faf9"/>
+    <text x="86" y="282" class="lname">4 · Foundation Models + Inference</text>
+    <text x="86" y="298" class="ldesc">the raw engine · hosted APIs or self-served</text>
+    <g>
+      <rect x="440" y="270" width="60" height="18" rx="9" class="chip"/><text x="470" y="283" class="ctext" text-anchor="middle">GPT-5</text>
+      <rect x="506" y="270" width="86" height="18" rx="9" class="chip"/><text x="549" y="283" class="ctext" text-anchor="middle">Claude Opus</text>
+      <rect x="598" y="270" width="62" height="18" rx="9" class="chip"/><text x="629" y="283" class="ctext" text-anchor="middle">Gemini</text>
+      <rect x="666" y="270" width="62" height="18" rx="9" class="chip"/><text x="697" y="283" class="ctext" text-anchor="middle">Llama 4</text>
+      <rect x="734" y="270" width="106" height="18" rx="9" class="chip"/><text x="787" y="283" class="ctext" text-anchor="middle">vLLM / TGI / APIs</text>
+    </g>
+
+    <!-- Band 5: Retrieval & vector -->
+    <rect x="70" y="324" width="784" height="60" rx="8" class="band"/>
+    <text x="86" y="350" class="lname">5 · Retrieval &amp; Vector</text>
+    <text x="86" y="366" class="ldesc">semantic search that grounds answers (RAG)</text>
+    <g>
+      <rect x="470" y="338" width="66" height="18" rx="9" class="chip"/><text x="503" y="351" class="ctext" text-anchor="middle">Pinecone</text>
+      <rect x="542" y="338" width="58" height="18" rx="9" class="chip"/><text x="571" y="351" class="ctext" text-anchor="middle">Qdrant</text>
+      <rect x="606" y="338" width="64" height="18" rx="9" class="chip"/><text x="638" y="351" class="ctext" text-anchor="middle">pgvector</text>
+      <rect x="676" y="338" width="60" height="18" rx="9" class="chip"/><text x="706" y="351" class="ctext" text-anchor="middle">Weaviate</text>
+      <rect x="742" y="338" width="98" height="18" rx="9" class="chip"/><text x="791" y="351" class="ctext" text-anchor="middle">Cohere Rerank</text>
+    </g>
+
+    <!-- Band 6: Data & ingestion -->
+    <rect x="70" y="392" width="784" height="60" rx="8" class="band"/>
+    <text x="86" y="418" class="lname">6 · Data &amp; Ingestion</text>
+    <text x="86" y="434" class="ldesc">parse, chunk, embed · garbage in = garbage out</text>
+    <g>
+      <rect x="486" y="406" width="86" height="18" rx="9" class="chip"/><text x="529" y="419" class="ctext" text-anchor="middle">LlamaParse</text>
+      <rect x="578" y="406" width="98" height="18" rx="9" class="chip"/><text x="627" y="419" class="ctext" text-anchor="middle">Unstructured</text>
+      <rect x="682" y="406" width="62" height="18" rx="9" class="chip"/><text x="713" y="419" class="ctext" text-anchor="middle">Airflow</text>
+      <rect x="750" y="406" width="90" height="18" rx="9" class="chip"/><text x="795" y="419" class="ctext" text-anchor="middle">Data lake / DW</text>
+    </g>
+
+    <!-- LLMOps band footer inside center -->
+    <rect x="70" y="460" width="784" height="52" rx="8" class="band" fill="#f7fafb"/>
+    <text x="86" y="483" class="lname" fill="#0e7490">Cross-cutting · Evaluation &amp; Observability (LLMOps)</text>
+    <text x="86" y="499" class="ldesc">every layer is traced + scored</text>
+    <g>
+      <rect x="486" y="475" width="70" height="18" rx="9" class="chip"/><text x="521" y="488" class="ctext" text-anchor="middle">Langfuse</text>
+      <rect x="562" y="475" width="94" height="18" rx="9" class="chip"/><text x="609" y="488" class="ctext" text-anchor="middle">Arize Phoenix</text>
+      <rect x="662" y="475" width="80" height="18" rx="9" class="chip"/><text x="702" y="488" class="ctext" text-anchor="middle">LangSmith</text>
+      <rect x="748" y="475" width="92" height="18" rx="9" class="chip"/><text x="794" y="488" class="ctext" text-anchor="middle">Future AGI</text>
+    </g>
+  </svg>
+  </div>
+  <p class="cap">Read bottom-up to build a system; top-down to trace a request. <b>Governance</b> (left) and <b>LLMOps</b> (right) wrap every layer. Product names are common 2026 examples, not endorsements.</p>
+
+  <!-- MENTAL MODEL: limitations -->
+  <h2>Mental model · Core limitations &amp; how we address them</h2>
+  <table>
+    <tr><th>Limitation</th><th>What it means for the business</th><th>How we address it</th></tr>
+    <tr><td class="lim">Hallucination</td><td>Confident, plausible, wrong output.</td><td>Ground with RAG; require citations; run evals; human-in-the-loop for high stakes.</td></tr>
+    <tr><td class="lim">Stale knowledge</td><td>Model doesn't know recent or internal facts.</td><td>Retrieval over live data and tools/APIs instead of relying on the model's memory.</td></tr>
+    <tr><td class="lim">Context limits</td><td>Can only "see" so much at once.</td><td>Smart chunking, retrieval of only relevant pieces, and summarization.</td></tr>
+    <tr><td class="lim">Non-determinism</td><td>Same input can yield different output.</td><td>Evals + guardrails, structured outputs, lower temperature, regression testing.</td></tr>
+    <tr><td class="lim">Cost &amp; latency</td><td>Frontier models are slow and expensive at scale.</td><td>Route easy calls to cheap/small models; cache; batch; set a quality budget.</td></tr>
+    <tr><td class="lim">Security</td><td>Prompt injection, data leakage, misuse.</td><td>Input/output guardrails, least-privilege tool access, data-flow controls, red-teaming.</td></tr>
+    <tr><td class="lim">Bias &amp; safety</td><td>Reputational and compliance exposure.</td><td>Policy, diverse test sets, review gates, documented model cards.</td></tr>
+  </table>
+
+  <!-- Governance + LLMOps + Value -->
+  <div class="two">
+    <div class="box gov">
+      <h2>Risk &amp; Governance</h2>
+      <p>Three complementary anchors — most enterprises run two or more together:</p>
+      <ul>
+        <li><b>NIST AI RMF</b> — operational risk-management method (Govern / Map / Measure / Manage).</li>
+        <li><b>ISO/IEC 42001</b> — certifiable AI management system; increasingly a procurement requirement.</li>
+        <li><b>EU AI Act</b> — law, by risk tier; applies to anyone deploying AI in EU markets.</li>
+      </ul>
+      <p style="margin-top:6px"><b>Operating model essentials:</b> named owners for risk sign-off, risk-tiered use cases, model cards, a Gen AI risk register, and an incident-response + rollback plan.</p>
+    </div>
+    <div class="box ops">
+      <h2>LLMOps</h2>
+      <p>The discipline that turns a demo into a production system you can debug, improve, and trust.</p>
+      <ul>
+        <li><b>Offline eval:</b> score against golden datasets in CI — gates releases like unit tests.</li>
+        <li><b>Online eval:</b> score sampled live traffic; alert on quality regression/drift.</li>
+        <li><b>Observability:</b> trace every step (prompt, retrieval, tool, cost, latency) end to end.</li>
+        <li><b>Prompt/version management</b> so changes are controlled, not ad hoc.</li>
+      </ul>
+      <p style="margin-top:6px"><b>Tools:</b> Langfuse, Arize Phoenix, LangSmith, Future AGI (OpenTelemetry-based).</p>
+    </div>
+  </div>
+
+  <div class="box val">
+    <h2>How we measure value</h2>
+    <div class="two" style="margin-bottom:0">
+      <div>
+        <p><b>Capture a baseline first.</b> The #1 reason ROI can't be proven is that no before-state was measured — not that the tech failed.</p>
+        <p><b>Three-tier ROI</b> (so you don't abandon early):</p>
+        <ul>
+          <li><b>Realized</b> — hard dollars already in the P&amp;L.</li>
+          <li><b>Trending</b> — leading indicators pointing at future return.</li>
+          <li><b>Capability</b> — durable new abilities/optionality.</li>
+        </ul>
+      </div>
+      <div>
+        <p><b>Four value channels</b> (most business cases only address the first):</p>
+        <ul>
+          <li>Cost reduction · Revenue contribution · Risk reduction · Strategic optionality.</li>
+        </ul>
+        <p style="margin-top:4px"><b>Best metric:</b> <em>cost per outcome</em> — fully-loaded cost per completed unit of work, before vs after Gen AI — beats "hours saved," which rarely reaches the operating statement.</p>
+        <p style="margin-top:4px"><b>Dashboard:</b> ~5 KPIs tied to efficiency, risk, and financial impact.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Gen AI Concepts for Decision-Makers · internal orientation brief · Module 1 artifact</span>
+    <span>Frameworks: NIST AI RMF · ISO/IEC 42001 · EU AI Act · Three-tier ROI</span>
+  </div>
+</div>
+</body>
+</html>

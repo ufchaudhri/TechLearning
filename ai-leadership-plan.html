@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Leadership Track — Tech SVP</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f6f7fb; --card:#ffffff; --ink:#12151c; --sub:#5a6472;
+    --line:#e6e9f0; --brand:#0f766e; --brand2:#0e7490; --brand-soft:#e5f4f2;
+    --green:#10b981; --green-soft:#e7f8f1; --amber:#f59e0b; --amber-soft:#fef4e4;
+    --shadow:0 1px 3px rgba(18,21,28,.06),0 8px 24px rgba(18,21,28,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 20px 80px}
+  header.hero{background:linear-gradient(120deg,#0f766e,#0e7490);color:#fff;border-radius:18px;padding:26px 28px;box-shadow:var(--shadow)}
+  header.hero h1{margin:0 0 6px;font-size:24px;letter-spacing:-.4px}
+  header.hero p{margin:0;opacity:.94;font-size:14.5px;max-width:780px}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+  .kpi .lab{font-size:12px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .kpi .val{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:4px}
+  .kpi .val span{font-size:14px;color:var(--sub);font-weight:600}
+  .bar{height:7px;background:var(--brand-soft);border-radius:99px;overflow:hidden;margin-top:10px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0;transition:width .5s}
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 18px}
+  nav.tabs button{border:1px solid var(--line);background:var(--card);color:var(--sub);padding:9px 15px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+  nav.tabs button:hover{border-color:#cfd4e2}
+  nav.tabs button.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  section.panel{display:none;animation:fade .25s}
+  section.panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  h2.sec{font-size:18px;margin:4px 0 4px;letter-spacing:-.3px}
+  p.lead{color:var(--sub);margin:0 0 16px;max-width:840px}
+  .week{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+  .week>.head{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
+  .wk-num{flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;text-align:center;line-height:1.1}
+  .wk-title{flex:1;min-width:0}
+  .wk-title h3{margin:0;font-size:15.5px}
+  .wk-title .meta{color:var(--sub);font-size:12.5px;margin-top:2px}
+  .wk-prog{flex:0 0 120px;text-align:right}
+  .wk-prog .p{font-size:12px;color:var(--sub);font-weight:700}
+  .mini{height:6px;background:var(--brand-soft);border-radius:99px;overflow:hidden;margin-top:5px}
+  .mini>i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#34d399);width:0;transition:width .4s}
+  .caret{flex:0 0 auto;color:var(--sub);transition:.2s;font-size:12px}
+  .week.open .caret{transform:rotate(90deg)}
+  .week>.body{display:none;padding:2px 18px 18px;border-top:1px solid var(--line)}
+  .week.open>.body{display:block}
+  .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;margin-top:14px}
+  .block h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--sub)}
+  ul.checks{list-style:none;padding:0;margin:0}
+  ul.checks li{display:flex;gap:9px;align-items:flex-start;padding:6px 0;font-size:14px}
+  ul.checks li input{margin-top:3px;width:16px;height:16px;accent-color:var(--brand);cursor:pointer;flex:0 0 auto}
+  ul.checks li label{cursor:pointer}
+  ul.checks li.done label{text-decoration:line-through;color:var(--sub)}
+  .res a{display:inline-flex;align-items:center;gap:6px;background:var(--brand-soft);color:var(--brand);text-decoration:none;padding:6px 11px;border-radius:8px;font-size:13px;font-weight:600;margin:0 6px 6px 0}
+  .res a:hover{background:#d3ece9}
+  .evidence{background:var(--green-soft);border:1px solid #cdeede;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:10px}
+  .evidence b{color:#0a7a54}
+  .recall{background:var(--amber-soft);border:1px solid #f6e0b8;border-radius:10px;padding:11px 13px;font-size:13.5px;margin-top:10px}
+  .recall b{color:#9a6400}
+  .recall ul{margin:6px 0 0;padding-left:18px}
+  .recall li{margin:3px 0}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .info{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .info h3{margin:0 0 6px;font-size:15px}
+  .info p{margin:0;color:var(--sub);font-size:13.5px}
+  .info ul{margin:8px 0 0;padding-left:18px;font-size:13.5px}
+  .info ul li{margin:5px 0}
+  table.srt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  table.srt th,table.srt td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+  table.srt th{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--sub)}
+  .port li{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .port li:last-child{border:none}
+  .port input{margin-top:2px;width:17px;height:17px;accent-color:var(--green);cursor:pointer;flex:0 0 auto}
+  .port .t{font-weight:600}
+  .port .d{color:var(--sub);font-size:13px;margin-top:2px}
+  .port li.done .t{text-decoration:line-through;color:var(--sub)}
+  .foot{margin-top:22px;text-align:center;color:var(--sub);font-size:12px}
+  .resetbtn{background:none;border:1px solid var(--line);color:var(--sub);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
+  .callout{background:linear-gradient(120deg,#e5f4f2,#e4f1f6);border:1px solid #c7e6e1;border-radius:14px;padding:16px 18px;margin-bottom:16px}
+  .callout b{color:var(--brand)}
+  @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.wk-prog{flex-basis:80px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>AI Leadership Track</h1>
+    <p>A structured path for a <b>Tech SVP</b> to lead AI with authority — enough technical depth to interrogate design and architecture, plus the governance, value-measurement, and value-creation fluency to set strategy and defend it to the board. Every module produces a <b>board-ready artifact</b>, not homework.</p>
+    <div class="hero-meta">
+      <span class="chip">🎯 Lead AI strategy &amp; delivery</span>
+      <span class="chip">⏱ 3–5 hrs/week · 6 modules</span>
+      <span class="chip">🏛 Governance-grade</span>
+      <span class="chip">📦 8 executive artifacts</span>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Overall progress</div><div class="val" id="kOverall">0<span>%</span></div><div class="bar"><i id="kOverallBar"></i></div></div>
+    <div class="kpi"><div class="lab">Modules completed</div><div class="val" id="kWeeks">0<span>/6</span></div><div class="bar"><i id="kWeeksBar"></i></div></div>
+    <div class="kpi"><div class="lab">Artifacts shipped</div><div class="val" id="kPort">0<span>/8</span></div><div class="bar"><i id="kPortBar"></i></div></div>
+    <div class="kpi"><div class="lab">Actions done</div><div class="val" id="kTasks">0<span>/0</span></div><div class="bar"><i id="kTasksBar"></i></div></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="active" data-tab="plan">📚 Curriculum</button>
+    <button data-tab="retain">🧠 Learning System</button>
+    <button data-tab="port">📦 Evidence &amp; Board Kit</button>
+    <button data-tab="how">ℹ️ How to Use</button>
+  </nav>
+
+  <section class="panel active" id="plan">
+    <h2 class="sec">The 6-Module Leadership Track</h2>
+    <p class="lead">Six modules mapped directly to what you asked for: concepts, system-design issues, end-to-end architecture, governance, value measurement, and value creation. At 3–5 hrs/week, take one module every 1–2 weeks (~6–10 weeks total). Each expands to a set of executive actions and ends in an artifact you can actually put in front of your leadership team or board.</p>
+    <div class="callout">
+      <b>How this differs from an IC track:</b> you're not learning to build — you're learning to <b>judge, govern, and fund</b>. The goal of each concept is a better question to ask your team and a better decision at the table. Depth is calibrated to "can interrogate a design review," not "can write the code."
+    </div>
+    <div id="weeks"></div>
+  </section>
+
+  <section class="panel" id="retain">
+    <h2 class="sec">Learning System — retention for executives</h2>
+    <p class="lead">Executives retain what they use and what they teach. This system is built around applying every concept to a live decision in your org and pressure-testing it out loud — not passive study.</p>
+
+    <div class="callout">
+      <b>The weekly executive loop (≈3–5 hrs):</b> 1) Learn one concept (60–90 min). 2) Map it to a real decision or project on your plate right now. 3) Draft one paragraph of the module's artifact. 4) Pressure-test: raise it in a 1:1 with an engineer/architect, or explain it to a peer. Teaching is the retention mechanism.
+    </div>
+
+    <div class="cards">
+      <div class="info">
+        <h3>1 · Apply to a live decision</h3>
+        <p>Abstract AI knowledge fades; a concept attached to a real bet sticks. Anchor each module to something already in your portfolio.</p>
+        <ul>
+          <li>Keep a running "decisions this changes" note per module.</li>
+          <li>Turn each concept into a question you'll ask in your next review.</li>
+        </ul>
+      </div>
+      <div class="info">
+        <h3>2 · Teach it up and across</h3>
+        <p>Explaining to your leadership team or board forces clarity and exposes gaps — and builds your reputation as the AI-fluent leader.</p>
+        <ul>
+          <li>Run a 20-min "AI concept of the week" in your staff meeting.</li>
+          <li>If you can't explain the tradeoff simply, you don't own it yet.</li>
+        </ul>
+      </div>
+      <div class="info">
+        <h3>3 · Spaced review of the essentials</h3>
+        <p>Revisit the handful of frameworks you'll actually deploy on an expanding schedule so they're recall-ready in the room.</p>
+        <table class="srt">
+          <tr><th>Review</th><th>When</th><th>Focus</th></tr>
+          <tr><td>R1</td><td>+3 days</td><td>Restate the module's core tradeoff</td></tr>
+          <tr><td>R2</td><td>+2 weeks</td><td>Apply it to a second project</td></tr>
+          <tr><td>R3</td><td>+6 weeks</td><td>Use it live in a review/board prep</td></tr>
+        </table>
+      </div>
+      <div class="info">
+        <h3>4 · Build an expert bench</h3>
+        <p>Leaders scale learning through people. Curate a small circle you can pressure-test thinking against.</p>
+        <ul>
+          <li>Identify 2–3 internal experts (architect, ML lead, security/legal).</li>
+          <li>Book a recurring 30-min "AI office hours" to stress-test decisions.</li>
+          <li>Keep a decision journal: what you decided, why, and what you'd revisit.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="port">
+    <h2 class="sec">Executive Evidence Tracker</h2>
+    <p class="lead">These are the tangible outputs that prove AI leadership — usable in your org today and as evidence for a CTO/Chief AI Officer trajectory. Together they form a leadership portfolio: you set the governance, defined the architecture standard, and built the value case.</p>
+    <div class="info" style="margin-bottom:16px"><ul class="port" id="portList"></ul></div>
+
+    <h2 class="sec">Board &amp; Exec Kit</h2>
+    <p class="lead">Turn fluency into influence.</p>
+    <div class="cards">
+      <div class="info">
+        <h3>The board narrative</h3>
+        <p>Only ~29% of executives say they can measure AI ROI with confidence. Being the leader who <b>can</b> is a differentiator.</p>
+        <ul>
+          <li>Lead with the four value channels: cost, revenue, risk reduction, strategic optionality.</li>
+          <li>Always show the baseline — most ROI disputes trace to a missing baseline, not failed tech.</li>
+        </ul>
+      </div>
+      <div class="info">
+        <h3>Govern with confidence</h3>
+        <ul>
+          <li>Adopt NIST AI RMF as the operating model, ISO 42001 as the certifiable system, and map EU AI Act exposure.</li>
+          <li>Name owners: who signs off on risk tier, evals, incidents.</li>
+          <li>Model cards + a risk register turn governance from slideware into practice.</li>
+        </ul>
+      </div>
+      <div class="info">
+        <h3>Interrogate any AI project</h3>
+        <ul>
+          <li>Ask: what's the eval? what's the failure mode? what's cost-per-outcome?</li>
+          <li>Build-vs-buy: where is the durable advantage — model, data, or workflow?</li>
+          <li>Demand a monitoring + rollback plan before scaling.</li>
+        </ul>
+      </div>
+      <div class="info">
+        <h3>Position yourself</h3>
+        <ul>
+          <li>Reframe your track record as "AI-governed delivery at scale."</li>
+          <li>Sponsor one visible, measurable AI win with a clean before/after.</li>
+          <li>Publish a POV (internal memo or talk) — leadership is demonstrated in the open.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="how">
+    <h2 class="sec">How to run this track</h2>
+    <div class="info" style="margin-bottom:14px">
+      <ul>
+        <li><b>Cadence:</b> one module every 1–2 weeks at 3–5 hrs — realistic for an SVP calendar. Front-load Modules 1–3 (literacy + design + architecture); they make 4–6 sharper.</li>
+        <li><b>Every module ships an artifact.</b> Draft it as you learn; the artifact is the proof and the deliverable, not a side task.</li>
+        <li><b>Use your real org as the case study.</b> Apply each framework to a live project — that's where retention and impact come from.</li>
+        <li><b>Progress saves</b> to this browser automatically. Re-open anytime and hit <b>Reload</b> in the header to refresh.</li>
+        <li><b>Reorder freely</b> if a board or budget cycle makes value measurement (Module 5) or governance (Module 4) urgent — they stand alone.</li>
+      </ul>
+    </div>
+    <div style="text-align:right"><button class="resetbtn" id="reset">Reset all progress</button></div>
+  </section>
+
+  <div class="foot">AI Leadership Track · Tech SVP · concepts · system design · architecture · governance · value · 3–5 hrs/wk · progress stored locally on this device</div>
+</div>
+
+<script>
+const DATA = [
+ {
+  id:"m1", title:"AI concepts & mental models for leaders",
+  meta:"Module 1 · Enough depth to interrogate, not to build",
+  tasks:[
+    "Build your mental model: training vs inference, LLMs, embeddings, RAG, fine-tuning, agents — one line each",
+    "Learn the 5 real limitations you must plan around: hallucination, context limits, cost, latency, non-determinism",
+    "Understand evaluation: why 'it demos well' ≠ 'it works' — what an eval set is and why it matters",
+    "Map each concept to a decision you currently face; note the question it changes",
+    "Draft a 1-page 'AI concepts for decision-makers' brief in your own words"
+  ],
+  res:[
+    ["Anthropic Academy — Claude for Work","https://www.anthropic.com/learn/claude-for-work"],
+    ["DeepLearning.AI — AI for Everyone","https://www.deeplearning.ai/courses/ai-for-everyone/"],
+    ["Stanford HAI — AI Index","https://hai.stanford.edu/ai-index"]
+  ],
+  recall:["Explain RAG vs fine-tuning to a non-technical peer in 3 sentences.","What are the top 3 reasons an AI demo fails to reach production?","What question would you now ask in a model review that you didn't before?"],
+  evidence:"Artifact #1: a 1-page 'AI concepts for decision-makers' brief — your literacy baseline and a team alignment tool."
+ },
+ {
+  id:"m2", title:"System design issues in AI",
+  meta:"Module 2 · The tradeoffs behind every AI feature",
+  tasks:[
+    "Learn the core tradeoffs: quality vs cost vs latency; open vs API models; prompt vs RAG vs fine-tune",
+    "Understand reliability & safety: evals, guardrails, human-in-the-loop, fallback/rollback",
+    "Data & privacy: where sensitive data flows, retention, PII, and vendor data-use terms",
+    "Security: prompt injection, data exfiltration, model/supply-chain risk at a leadership level",
+    "Turn it into an AI project due-diligence rubric (the questions you ask before funding)"
+  ],
+  res:[
+    ["OWASP — Top 10 for LLM Applications","https://owasp.org/www-project-top-10-for-large-language-model-applications/"],
+    ["NIST AI RMF (risk lens)","https://www.nist.gov/itl/ai-risk-management-framework"]
+  ],
+  recall:["Name the three levers that trade off in every LLM feature and how you'd balance them.","What is prompt injection and why should an SVP care?","What's your minimum bar before an AI feature ships to customers?"],
+  evidence:"Artifact #2: an AI project due-diligence rubric — a reusable checklist for reviewing/funding AI work."
+ },
+ {
+  id:"m3", title:"End-to-end AI architecture",
+  meta:"Module 3 · From data to production, and who owns each layer",
+  tasks:[
+    "Sketch the reference stack: data/ingestion → model/inference → orchestration → app → monitoring/eval",
+    "Compare the three patterns and when each fits: RAG, fine-tuning, agentic workflows",
+    "Understand LLMOps/MLOps: deployment, versioning, monitoring, drift, incident response",
+    "Frame build-vs-buy: where the durable moat is (model, data, or workflow) and total cost of ownership",
+    "Produce an annotated end-to-end reference architecture for one of your org's AI use cases"
+  ],
+  res:[
+    ["Future AGI — LLM Application Tech Stack (layer-by-layer, 2026)","https://futureagi.com/blog/llm-application-tech-stack-2025/"],
+    ["Google Cloud — Gen AI architecture","https://cloud.google.com/architecture/gen-ai-rag-vertex-ai-vector-search"],
+    ["Anthropic Academy — Build with Claude","https://www.anthropic.com/learn/build-with-claude"]
+  ],
+  recall:["Walk the end-to-end path of a user request through an AI product.","When would you choose RAG over fine-tuning over an agent?","In build-vs-buy, where is the defensible advantage for your org?"],
+  evidence:"Artifact #3: an annotated E2E reference architecture + build-vs-buy call for a real use case. A standard you can hold teams to."
+ },
+ {
+  id:"m4", title:"AI governance & risk",
+  meta:"Module 4 · Frameworks, roles, and an operating model that holds up",
+  tasks:[
+    "Learn the three anchors: NIST AI RMF (operational), ISO/IEC 42001 (certifiable system), EU AI Act (law by risk tier)",
+    "Map your EU AI Act / regulatory exposure and risk-tier your current AI use cases",
+    "Define the operating model: who owns risk sign-off, evals, model cards, incident response",
+    "Establish practice tools: a model card template and an AI risk register",
+    "Draft a 1-page AI governance operating model + risk register for your org"
+  ],
+  res:[
+    ["NIST AI Risk Management Framework","https://www.nist.gov/itl/ai-risk-management-framework"],
+    ["ISO/IEC 42001","https://www.iso.org/standard/81230.html"],
+    ["EU AI Act explorer","https://artificialintelligenceact.eu/"],
+    ["OECD AI Principles","https://oecd.ai/en/ai-principles"]
+  ],
+  recall:["Explain how NIST AI RMF, ISO 42001, and the EU AI Act complement rather than duplicate each other.","Which of your AI use cases are highest-risk, and who signs off on them?","What goes in a model card and why does it matter to governance?"],
+  evidence:"Artifact #4: a one-page AI governance operating model + risk register template — turns compliance from slideware into practice."
+ },
+ {
+  id:"m5", title:"Value measurement",
+  meta:"Module 5 · Prove the return — the thing most execs can't",
+  tasks:[
+    "Learn the three-tier ROI model: Realized, Trending, and Capability ROI (avoid premature abandonment)",
+    "Adopt 'cost per outcome' over 'time saved' — fully-loaded cost per unit of work, before vs after",
+    "Establish baselines FIRST — the #1 reason ROI can't be proven is no baseline was captured",
+    "Design a 5-metric executive AI dashboard tied to efficiency, risk, and financial impact",
+    "Build an AI value scorecard + baseline plan for one initiative"
+  ],
+  res:[
+    ["IBM — How to maximize AI ROI","https://www.ibm.com/think/insights/ai-roi"],
+    ["Stanford HAI — AI Index (adoption/impact data)","https://hai.stanford.edu/ai-index"]
+  ],
+  recall:["Explain Realized vs Trending vs Capability ROI to your CFO.","Why is 'cost per outcome' more honest than 'hours saved'?","What baseline would you capture before greenlighting an AI project?"],
+  evidence:"Artifact #5: an AI value scorecard + baseline plan — CFO-ready, and the answer to 'is this working?'"
+ },
+ {
+  id:"m6", title:"Value creation & portfolio strategy",
+  meta:"Module 6 · Where to invest, how to sequence, how to sell it",
+  tasks:[
+    "Learn the four value channels: cost reduction, revenue contribution, risk reduction, strategic optionality",
+    "Run an opportunity scan: rank use cases by value × feasibility × risk into a portfolio",
+    "Address org & change: talent, operating model, adoption, and the human side of rollout",
+    "Sequence a Now/Next/Later AI roadmap with clear owners and success metrics",
+    "Write a board-ready AI investment thesis + prioritized opportunity portfolio; deliver it as a talk"
+  ],
+  res:[
+    ["McKinsey — State of AI","https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai"],
+    ["Coursera — Job Skills Report 2026","https://www.coursera.org/skills-reports/job-skills"]
+  ],
+  recall:["Which of the four value channels is your org underinvesting in?","How would you sequence your top 5 AI bets and why?","Pitch your #1 AI investment to the board in 90 seconds."],
+  evidence:"Artifact #6: a board-ready AI investment thesis + prioritized portfolio + the delivered exec talk. Your leadership flagship."
+ }
+];
+
+const PORT = [
+  ["AI concepts brief for decision-makers","1-pager in your own words — literacy baseline + team alignment (Module 1)"],
+  ["AI project due-diligence rubric","The questions you ask before funding any AI work (Module 2)"],
+  ["E2E reference architecture + build-vs-buy","An architecture standard for a real use case (Module 3)"],
+  ["AI governance operating model + risk register","NIST/ISO/EU-anchored, with named owners (Module 4)"],
+  ["AI value scorecard + baseline plan","CFO-ready measurement, baselines captured (Module 5)"],
+  ["Board AI investment thesis + portfolio","Four value channels, Now/Next/Later roadmap (Module 6)"],
+  ["Delivered exec talk / leadership-team workshop","Fluency demonstrated in the open (Module 6)"],
+  ["Anthropic Academy — Claude for Work certificate","Free, certificate-bearing proof of applied AI fluency"]
+];
+
+const KEY="aileadership_v1";
+let state = JSON.parse(localStorage.getItem(KEY)||"{}");
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+
+const weeksEl=document.getElementById("weeks");
+DATA.forEach((w,wi)=>{
+  const div=document.createElement("div");div.className="week";div.id=w.id;
+  const tasksHtml=w.tasks.map((t,i)=>{
+    const k=w.id+"_t"+i;const done=state[k]?"done":"";const chk=state[k]?"checked":"";
+    return '<li class="'+done+'"><input type="checkbox" data-k="'+k+'" '+chk+'><label>'+t+'</label></li>';
+  }).join("");
+  const resHtml=w.res.map(r=>'<a href="'+r[1]+'" target="_blank" rel="noopener">🔗 '+r[0]+'</a>').join("");
+  const recallHtml=w.recall.map(r=>'<li>'+r+'</li>').join("");
+  div.innerHTML=
+    '<div class="head">'+
+      '<div class="wk-num">MOD<br>'+(wi+1)+'</div>'+
+      '<div class="wk-title"><h3>'+w.title+'</h3><div class="meta">'+w.meta+'</div></div>'+
+      '<div class="wk-prog"><div class="p" id="p_'+w.id+'">0%</div><div class="mini"><i id="pb_'+w.id+'"></i></div></div>'+
+      '<div class="caret">▶</div>'+
+    '</div>'+
+    '<div class="body"><div class="grid2">'+
+        '<div class="block"><h4>Executive actions</h4><ul class="checks">'+tasksHtml+'</ul>'+
+          '<div class="block res" style="margin-top:12px"><h4>Resources</h4>'+resHtml+'</div></div>'+
+        '<div class="block">'+
+          '<div class="recall"><b>🧠 Boardroom recall</b> — can you answer these on the spot?<ul>'+recallHtml+'</ul></div>'+
+          '<div class="evidence"><b>📦 Artifact:</b> '+w.evidence+'</div>'+
+        '</div>'+
+      '</div></div>';
+  weeksEl.appendChild(div);
+});
+
+const portEl=document.getElementById("portList");
+PORT.forEach((p,i)=>{
+  const k="port_"+i;const done=state[k]?"done":"";const chk=state[k]?"checked":"";
+  const li=document.createElement("li");li.className=done;
+  li.innerHTML='<input type="checkbox" data-k="'+k+'" '+chk+'><div><div class="t">'+p[0]+'</div><div class="d">'+p[1]+'</div></div>';
+  portEl.appendChild(li);
+});
+
+document.querySelectorAll(".week .head").forEach(h=>{
+  h.addEventListener("click",e=>{
+    if(e.target.tagName==="A"||e.target.tagName==="INPUT")return;
+    h.parentElement.classList.toggle("open");
+  });
+});
+document.getElementById("m1").classList.add("open");
+
+document.body.addEventListener("change",e=>{
+  if(e.target.type==="checkbox"&&e.target.dataset.k){
+    state[e.target.dataset.k]=e.target.checked;save();
+    const li=e.target.closest("li");if(li)li.classList.toggle("done",e.target.checked);
+    render();
+  }
+});
+
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("section.panel").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("reset").addEventListener("click",()=>{
+  if(confirm("Reset all progress on this device?")){state={};save();location.reload();}
+});
+
+function render(){
+  let totalTasks=0,doneTasks=0,weeksDone=0;
+  const wkTotal=DATA.length;
+  DATA.forEach(w=>{
+    let wt=w.tasks.length,wd=0;
+    w.tasks.forEach((t,i)=>{if(state[w.id+"_t"+i])wd++;});
+    totalTasks+=wt;doneTasks+=wd;
+    const pct=Math.round(wd/wt*100);
+    const pEl=document.getElementById("p_"+w.id);const pbEl=document.getElementById("pb_"+w.id);
+    if(pEl)pEl.textContent=pct+"%";if(pbEl)pbEl.style.width=pct+"%";
+    if(wd===wt)weeksDone++;
+  });
+  let portDone=0;PORT.forEach((p,i)=>{if(state["port_"+i])portDone++;});
+  const portTotal=PORT.length;
+  const overall=Math.round(doneTasks/totalTasks*100);
+  set("kOverall",overall,"%");document.getElementById("kOverallBar").style.width=overall+"%";
+  set("kWeeks",weeksDone,"/"+wkTotal);document.getElementById("kWeeksBar").style.width=(weeksDone/wkTotal*100)+"%";
+  set("kPort",portDone,"/"+portTotal);document.getElementById("kPortBar").style.width=(portDone/portTotal*100)+"%";
+  set("kTasks",doneTasks,"/"+totalTasks);document.getElementById("kTasksBar").style.width=(doneTasks/totalTasks*100)+"%";
+}
+function set(id,val,suffix){document.getElementById(id).innerHTML=val+'<span>'+suffix+'</span>';}
+render();
+</script>
+</body>
+</html>
