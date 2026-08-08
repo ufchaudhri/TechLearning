@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractional CDO Prototype Playbook · v2.0</title>
+<meta name="description" content="A professional methodology for building domain-realistic, demo-ready prototypes to demonstrate Tech Leadership capabilities.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0E0E10;
+  --surface:   #141416;
+  --surface-2: #1A1A1E;
+  --surface-3: #202026;
+  --border:    rgba(255,255,255,0.07);
+  --border-md: rgba(255,255,255,0.12);
+  --border-lg: rgba(255,255,255,0.18);
+  --ink:       #F2F0EB;
+  --ink-2:     #B8B4A8;
+  --ink-3:     #7A766E;
+  --ink-4:     #4A4842;
+  --gold:      #C9A84C;
+  --gold-dim:  rgba(201,168,76,0.12);
+  --gold-glow: rgba(201,168,76,0.06);
+  --teal:      #4ABFB0;
+  --teal-dim:  rgba(74,191,176,0.1);
+  --red:       #E05252;
+  --red-dim:   rgba(224,82,82,0.1);
+  --green:     #52C97A;
+  --green-dim: rgba(82,201,122,0.1);
+  --blue:      #6B9FE8;
+  --blue-dim:  rgba(107,159,232,0.1);
+  --purple:    #A47FDB;
+  --purple-dim:rgba(164,127,219,0.1);
+  --serif:     'Playfair Display', Georgia, serif;
+  --sans:      'Syne', system-ui, sans-serif;
+  --mono:      'IBM Plex Mono', 'Courier New', monospace;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-lg); border-radius: 3px; }
+
+/* ── HEADER ── */
+.site-header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(14,14,16,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 40px;
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand-icon {
+  width: 32px; height: 32px;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif);
+  font-size: 15px; color: var(--gold);
+  font-style: italic;
+  box-shadow: 0 0 16px var(--gold-glow);
+}
+.brand-text { display: flex; flex-direction: column; gap: 1px; }
+.brand-name { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: 0.5px; line-height: 1; }
+.brand-version { font-size: 10px; font-family: var(--mono); color: var(--ink-3); letter-spacing: 0.5px; }
+.header-pills { display: flex; gap: 8px; }
+.header-pill {
+  font-size: 11px; font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--ink-3);
+  background: var(--surface-2);
+  letter-spacing: 0.3px;
+}
+.header-pill.gold { border-color: rgba(201,168,76,0.3); color: var(--gold); background: var(--gold-dim); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; overflow: hidden;
+  padding: 88px 40px 80px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(201,168,76,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(74,191,176,0.04) 0%, transparent 60%);
+}
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.3;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
+}
+.hero-inner { max-width: 1200px; margin: 0 auto; position: relative; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 500; letter-spacing: 1.8px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 24px;
+  padding: 6px 14px;
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 20px;
+  background: var(--gold-dim);
+}
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(40px, 5.5vw, 68px);
+  font-weight: 400; line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--ink);
+  margin-bottom: 24px; max-width: 800px;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-title .line2 { display: block; }
+.hero-sub {
+  font-size: 16px; line-height: 1.75; font-weight: 400;
+  color: var(--ink-2);
+  max-width: 560px; margin-bottom: 48px;
+}
+.hero-stats {
+  display: flex; gap: 0; flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  overflow: hidden;
+  width: fit-content;
+}
+.hero-stat {
+  padding: 16px 28px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.hero-stat:last-child { border-right: none; }
+.stat-value { font-family: var(--serif); font-size: 22px; color: var(--gold); font-weight: 400; line-height: 1; }
+.stat-label { font-size: 11px; font-weight: 500; letter-spacing: 0.5px; color: var(--ink-3); text-transform: uppercase; }
+
+/* ── MAIN ── */
+.main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 100px; }
+
+/* ── TAB SYSTEM ── */
+.playbook-container {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.4), 0 0 0 1px var(--border);
+}
+.tab-nav {
+  display: flex; border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  overflow-x: auto; scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none; border: none;
+  border-bottom: 2px solid transparent;
+  padding: 16px 22px;
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--ink-3); cursor: pointer;
+  white-space: nowrap; margin-bottom: -1px;
+  transition: var(--transition);
+  display: flex; align-items: center; gap: 8px;
+}
+.tab-btn:hover { color: var(--ink); background: rgba(255,255,255,0.03); }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(201,168,76,0.04); }
+.tab-number {
+  width: 18px; height: 18px; border-radius: 4px;
+  background: var(--surface-3); border: 1px solid var(--border);
+  font-family: var(--mono); font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-4);
+}
+.tab-btn.active .tab-number { background: var(--gold-dim); border-color: rgba(201,168,76,0.3); color: var(--gold); }
+
+.tab-pane { display: none; padding: 48px 52px 56px; animation: paneFade 0.22s ease; }
+.tab-pane.active { display: block; }
+@keyframes paneFade { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── TYPOGRAPHY ── */
+.pane-header { margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+.pane-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px; }
+h2 { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--ink); line-height: 1.15; letter-spacing: -0.3px; margin-bottom: 10px; }
+h2 em { font-style: italic; color: var(--gold); }
+.pane-intro { font-size: 15px; line-height: 1.8; color: var(--ink-2); max-width: 640px; font-weight: 400; }
+h3 { font-size: 13px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-3); margin: 36px 0 16px; display: flex; align-items: center; gap: 10px; }
+h3::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+p { font-size: 14px; line-height: 1.8; color: var(--ink-2); margin-bottom: 10px; }
+
+/* ── PHASE CARDS ── */
+.phases { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.phase {
+  display: grid; grid-template-columns: 72px 1fr;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+  position: relative;
+}
+.phase:last-child { border-bottom: none; }
+.phase:hover { background: rgba(255,255,255,0.02); }
+.phase-num-col {
+  background: var(--surface-2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding-top: 22px; gap: 8px;
+}
+.phase-num {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  color: var(--ink-4); letter-spacing: 0.5px;
+}
+.phase-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border-lg);
+}
+.phase:hover .phase-dot { background: var(--gold); box-shadow: 0 0 8px var(--gold-glow); }
+.phase-body { padding: 20px 24px; }
+.phase-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.phase-title { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: 0.1px; }
+.phase-desc { font-size: 13px; color: var(--ink-2); line-height: 1.7; margin-bottom: 12px; }
+.phase-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--ink-3); background: var(--surface-3);
+}
+.tag.gold { border-color: rgba(201,168,76,0.3); color: var(--gold); background: var(--gold-dim); }
+.tag.teal { border-color: rgba(74,191,176,0.3); color: var(--teal); background: var(--teal-dim); }
+.tag.blue { border-color: rgba(107,159,232,0.3); color: var(--blue); background: var(--blue-dim); }
+.tag.green { border-color: rgba(82,201,122,0.3); color: var(--green); background: var(--green-dim); }
+.tag.purple { border-color: rgba(164,127,219,0.3); color: var(--purple); background: var(--purple-dim); }
+.tag.red { border-color: rgba(224,82,82,0.3); color: var(--red); background: var(--red-dim); }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-radius: var(--radius); padding: 16px 20px; margin: 20px 0;
+  border-left: 3px solid; border-top: 1px solid; border-right: 1px solid; border-bottom: 1px solid;
+}
+.callout.gold { border-left-color: var(--gold); border-color: rgba(201,168,76,0.2); background: var(--gold-dim); }
+.callout.teal { border-left-color: var(--teal); border-color: rgba(74,191,176,0.2); background: var(--teal-dim); }
+.callout.red { border-left-color: var(--red); border-color: rgba(224,82,82,0.2); background: var(--red-dim); }
+.callout.blue { border-left-color: var(--blue); border-color: rgba(107,159,232,0.2); background: var(--blue-dim); }
+.callout-title { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px; }
+.callout.gold .callout-title { color: var(--gold); }
+.callout.teal .callout-title { color: var(--teal); }
+.callout.red .callout-title { color: var(--red); }
+.callout.blue .callout-title { color: var(--blue); }
+.callout-body { font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+
+/* ── TWO COLUMN ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+
+/* ── QUESTION CARDS ── */
+.q-card {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  transition: border-color var(--transition), background var(--transition);
+}
+.q-card:hover { border-color: var(--border-md); background: var(--surface-3); }
+.q-card.full { grid-column: 1 / -1; }
+.q-num { font-family: var(--mono); font-size: 10px; color: var(--ink-4); margin-bottom: 8px; }
+.q-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.4; }
+.q-body { font-size: 12px; color: var(--ink-2); line-height: 1.65; }
+.q-assume {
+  font-size: 11px; color: var(--ink-4); margin-top: 10px;
+  padding-top: 10px; border-top: 1px solid var(--border);
+  line-height: 1.6; font-style: italic;
+  display: flex; gap: 6px;
+}
+.q-assume::before { content: '→'; color: var(--teal); flex-shrink: 0; font-style: normal; }
+
+/* ── ARTIFACT GRID ── */
+.artifact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+.artifact-card {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  transition: all var(--transition); cursor: default;
+}
+.artifact-card:hover { border-color: var(--border-md); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.artifact-icon { font-size: 18px; margin-bottom: 10px; display: block; }
+.artifact-name { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 5px; letter-spacing: 0.2px; }
+.artifact-desc { font-size: 11px; color: var(--ink-2); line-height: 1.65; }
+.artifact-ex { font-size: 10px; color: var(--ink-4); margin-top: 6px; font-style: italic; }
+
+/* ── TIER TABLE ── */
+.tier-table { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin: 16px 0; }
+.tier-row { display: grid; grid-template-columns: 90px 1fr; border-bottom: 1px solid var(--border); }
+.tier-row:last-child { border-bottom: none; }
+.tier-badge-col {
+  background: var(--surface-2); border-right: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: center; padding-top: 18px;
+}
+.tier-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 20px; border: 1px solid;
+}
+.tier-badge.gold { color: var(--gold); border-color: rgba(201,168,76,0.4); background: var(--gold-dim); }
+.tier-badge.silver { color: var(--ink-3); border-color: var(--border-md); background: var(--surface-3); }
+.tier-badge.bronze { color: #B07D50; border-color: rgba(176,125,80,0.35); background: rgba(176,125,80,0.08); }
+.tier-body { padding: 16px 20px; }
+.tier-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.tier-desc { font-size: 12px; color: var(--ink-2); line-height: 1.65; }
+
+/* ── PROMPT CARDS ── */
+.prompt-card { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin: 16px 0; background: var(--surface-2); }
+.prompt-header {
+  padding: 12px 18px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.prompt-header-left { display: flex; align-items: center; gap: 10px; }
+.prompt-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px;
+  border: 1px solid rgba(201,168,76,0.3); color: var(--gold); background: var(--gold-dim);
+}
+.prompt-label { font-size: 12px; font-weight: 500; color: var(--ink-2); }
+.copy-btn {
+  font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+  padding: 5px 12px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--ink-3); cursor: pointer; transition: var(--transition);
+  white-space: nowrap;
+}
+.copy-btn:hover { border-color: var(--border-md); color: var(--ink); background: var(--surface-2); }
+.copy-btn.copied { border-color: rgba(82,201,122,0.4); color: var(--green); background: var(--green-dim); }
+.prompt-body {
+  padding: 20px;
+  font-family: var(--mono); font-size: 12px; line-height: 1.85;
+  color: var(--ink-2); white-space: pre-wrap; word-break: break-word;
+}
+.ph { color: var(--gold); } /* placeholder */
+.kw { color: var(--teal); } /* keyword */
+.cm { color: var(--ink-4); font-style: italic; } /* comment */
+
+/* ── UI STANDARDS TABLE ── */
+.std-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.std-table thead { background: var(--surface-3); }
+.std-table th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-4); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.std-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-2); line-height: 1.55; font-size: 13px; }
+.std-table tr:last-child td { border-bottom: none; }
+.std-table tr:hover td { background: rgba(255,255,255,0.02); }
+.t-level { font-weight: 600; color: var(--ink); }
+.t-size { font-family: var(--mono); font-size: 11px; color: var(--teal); }
+.t-use { font-size: 12px; }
+
+/* ── COLOR GRID ── */
+.color-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+.color-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--surface-2); transition: var(--transition); }
+.color-card:hover { border-color: var(--border-md); }
+.color-bar { height: 4px; border-radius: 2px; margin-bottom: 12px; }
+.color-name { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.color-use { font-size: 11px; color: var(--ink-3); line-height: 1.55; }
+.color-hex { font-family: var(--mono); font-size: 10px; color: var(--ink-4); margin-top: 4px; }
+
+/* ── RULES LIST ── */
+.rules-list { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin: 12px 0; }
+.rule-item { display: grid; grid-template-columns: 52px 1fr; border-bottom: 1px solid var(--border); transition: background var(--transition); }
+.rule-item:last-child { border-bottom: none; }
+.rule-item:hover { background: rgba(255,255,255,0.02); }
+.rule-num-col {
+  background: var(--surface-2); border-right: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: center; padding-top: 14px;
+  font-family: var(--mono); font-size: 10px; color: var(--ink-4);
+}
+.rule-content { padding: 14px 18px; }
+.rule-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.rule-desc { font-size: 12px; color: var(--ink-2); line-height: 1.65; }
+.rule-example { font-family: var(--mono); font-size: 11px; color: var(--teal); margin-top: 6px; background: var(--surface-3); padding: 6px 10px; border-radius: 4px; border-left: 2px solid var(--teal); }
+
+/* ── DOC STRUCTURE ── */
+.doc-tab-list { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin: 16px 0; }
+.doc-tab-item { display: grid; grid-template-columns: 170px 1fr; border-bottom: 1px solid var(--border); transition: background var(--transition); }
+.doc-tab-item:last-child { border-bottom: none; }
+.doc-tab-item:hover { background: rgba(255,255,255,0.02); }
+.doc-tab-name { padding: 16px 20px; font-size: 12px; font-weight: 600; color: var(--ink); background: var(--surface-2); border-right: 1px solid var(--border); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+.doc-tab-name .tab-n { font-family: var(--mono); font-size: 10px; color: var(--ink-4); flex-shrink: 0; padding-top: 1px; }
+.doc-tab-desc { padding: 16px 20px; font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+
+/* ── CHECKLIST ── */
+.checklist { list-style: none; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin: 12px 0; }
+.checklist li {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 18px; border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--ink-2); line-height: 1.55; transition: background var(--transition);
+}
+.checklist li:last-child { border-bottom: none; }
+.checklist li:hover { background: rgba(255,255,255,0.02); }
+.check-box {
+  width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  border: 1px solid rgba(82,201,122,0.35); background: var(--green-dim);
+  display: flex; align-items: center; justify-content: center;
+}
+.check-box::after { content: '✓'; font-size: 11px; color: var(--green); font-weight: 700; }
+
+/* ── GOVERNANCE SECTION (new) ── */
+.matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin: 16px 0; }
+.matrix-cell { padding: 18px 20px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.matrix-cell:nth-child(2n) { border-right: none; }
+.matrix-cell:nth-last-child(-n+2) { border-bottom: none; }
+.matrix-header { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; }
+.matrix-header.gold { color: var(--gold); }
+.matrix-header.teal { color: var(--teal); }
+.matrix-header.blue { color: var(--blue); }
+.matrix-header.purple { color: var(--purple); }
+.matrix-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.matrix-list li { font-size: 12px; color: var(--ink-2); line-height: 1.5; display: flex; gap: 7px; }
+.matrix-list li::before { content: '·'; color: var(--ink-4); flex-shrink: 0; }
+
+/* ── RISK TABLE (new) ── */
+.risk-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin: 12px 0; }
+.risk-table thead { background: var(--surface-3); }
+.risk-table th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-4); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.risk-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--ink-2); vertical-align: top; line-height: 1.6; }
+.risk-table tr:last-child td { border-bottom: none; }
+.risk-table tr:hover td { background: rgba(255,255,255,0.02); }
+.risk-level { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid; }
+.risk-level.high { color: var(--red); border-color: rgba(224,82,82,0.3); background: var(--red-dim); }
+.risk-level.med { color: var(--gold); border-color: rgba(201,168,76,0.3); background: var(--gold-dim); }
+.risk-level.low { color: var(--green); border-color: rgba(82,201,122,0.3); background: var(--green-dim); }
+
+/* ── VERSION TIMELINE (new) ── */
+.timeline { position: relative; padding-left: 28px; margin: 16px 0; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1px; background: var(--border); }
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot { position: absolute; left: -24px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg); }
+.tl-dot.gold { background: var(--gold); box-shadow: 0 0 8px rgba(201,168,76,0.5); }
+.tl-dot.dim { background: var(--ink-4); }
+.tl-version { font-family: var(--mono); font-size: 10px; color: var(--ink-4); margin-bottom: 3px; }
+.tl-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.tl-desc { font-size: 12px; color: var(--ink-2); line-height: 1.6; }
+
+/* ── SHARE SECTION ── */
+.share-panel {
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: var(--radius-lg); padding: 28px 32px; margin: 20px 0;
+  background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, var(--surface-2) 100%);
+  position: relative; overflow: hidden;
+}
+.share-panel::before {
+  content: ''; position: absolute; top: -50%; right: -20%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.share-title { font-family: var(--serif); font-size: 20px; color: var(--ink); margin-bottom: 6px; font-weight: 400; position: relative; }
+.share-sub { font-size: 13px; color: var(--ink-2); margin-bottom: 20px; line-height: 1.7; font-weight: 400; position: relative; }
+.share-url {
+  font-family: var(--mono); font-size: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px;
+  color: var(--teal); word-break: break-all; position: relative;
+}
+.share-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; position: relative; }
+.share-step { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.share-step-n { font-family: var(--mono); font-size: 10px; color: var(--ink-4); margin-bottom: 5px; }
+.share-step-t { font-size: 12px; color: var(--ink-2); line-height: 1.55; }
+
+/* ── FOOTER ── */
+.site-footer { background: var(--surface); border-top: 1px solid var(--border); padding: 36px 40px; text-align: center; }
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-brand { font-family: var(--serif); font-size: 18px; color: var(--ink-3); margin-bottom: 6px; font-style: italic; }
+.footer-meta { font-size: 11px; font-family: var(--mono); color: var(--ink-4); display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.footer-sep { color: var(--border-lg); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .header-inner { padding: 0 20px; }
+  .header-pills { display: none; }
+  .hero { padding: 56px 20px 52px; }
+  .hero-stats { width: 100%; overflow-x: auto; }
+  .main { padding: 24px 16px 60px; }
+  .tab-pane { padding: 28px 24px 36px; }
+  .two-col { grid-template-columns: 1fr; }
+  .artifact-grid { grid-template-columns: 1fr 1fr; }
+  .color-grid { grid-template-columns: 1fr 1fr; }
+  .share-steps { grid-template-columns: 1fr; }
+  .doc-tab-item { grid-template-columns: 1fr; }
+  .doc-tab-name { border-right: none; border-bottom: 1px solid var(--border); }
+  .matrix-grid { grid-template-columns: 1fr; }
+  .matrix-cell { border-right: none; }
+  .matrix-cell:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .matrix-cell:last-child { border-bottom: none; }
+}
+@media (max-width: 480px) {
+  .artifact-grid { grid-template-columns: 1fr; }
+  .color-grid { grid-template-columns: 1fr; }
+  .tab-btn { padding: 14px 14px; font-size: 11px; }
+  h2 { font-size: 26px; }
+  .hero-title { font-size: 34px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#" class="brand">
+      <div class="brand-icon">P</div>
+      <div class="brand-text">
+        <span class="brand-name">PROTOTYPE PLAYBOOK</span>
+        <span class="brand-version">v2.0 · FRACTIONAL CDO EDITION</span>
+      </div>
+    </a>
+    <div class="header-pills">
+      <span class="header-pill">6 Phases</span>
+      <span class="header-pill">5 Prompt Templates</span>
+      <span class="header-pill">Governance Framework</span>
+      <span class="header-pill gold">Client-Ready</span>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Fractional CDO · Tech Leadership Methodology</div>
+    <h1 class="hero-title">
+      Domain-Agnostic<br>
+      <em>Prototype Playbook</em>
+    </h1>
+    <p class="hero-sub">A production-grade methodology for building domain-realistic, demo-ready functional prototypes — with Claude as your research engine, UI builder, and documentation co-author. Designed to withstand scrutiny from Series A–C technical leadership.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="stat-value">6</span><span class="stat-label">Build Phases</span></div>
+      <div class="hero-stat"><span class="stat-value">5</span><span class="stat-label">Prompt Templates</span></div>
+      <div class="hero-stat"><span class="stat-value">8</span><span class="stat-label">UI Rules</span></div>
+      <div class="hero-stat"><span class="stat-value">9</span><span class="stat-label">Input Artifact Types</span></div>
+      <div class="hero-stat"><span class="stat-value">6</span><span class="stat-label">Doc Tabs</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="playbook-container">
+
+    <!-- TAB NAV -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('phases',this)"><span class="tab-number">01</span>Phases</button>
+      <button class="tab-btn" onclick="switchTab('questions',this)"><span class="tab-number">02</span>Discovery</button>
+      <button class="tab-btn" onclick="switchTab('artifacts',this)"><span class="tab-number">03</span>Artifacts</button>
+      <button class="tab-btn" onclick="switchTab('prompts',this)"><span class="tab-number">04</span>Prompts</button>
+      <button class="tab-btn" onclick="switchTab('ui',this)"><span class="tab-number">05</span>UI Standards</button>
+      <button class="tab-btn" onclick="switchTab('governance',this)"><span class="tab-number">06</span>Governance</button>
+      <button class="tab-btn" onclick="switchTab('docs',this)"><span class="tab-number">07</span>Documentation</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB 01 · PHASES                                            -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="pane-phases" class="tab-pane active">
+      <div class="pane-header">
+        <div class="pane-eyebrow">Methodology · Build Sequence</div>
+        <h2>Six-Phase <em>Build Framework</em></h2>
+        <p class="pane-intro">Every engagement — regardless of domain, scope, or timeline — follows this sequence. Phases 1–3 can be compressed into a single Claude conversation using the Kickoff Prompt. Nothing in this process blocks on domain expertise you don't yet have.</p>
+      </div>
+
+      <div class="phases">
+        <div class="phase">
+          <div class="phase-num-col"><span class="phase-num">01</span><div class="phase-dot"></div></div>
+          <div class="phase-body">
+            <div class="phase-meta"><div class="phase-title">Domain Orientation</div></div>
+            <div class="phase-desc">Claude researches the target domain before any code is written. Output: a structured domain brief covering key personas, primary workflows, canonical data entities, industry KPIs, relevant standards or compliance context (ISO, PCI, HIPAA, etc.), and the vocabulary used by practitioners in that space. This brief becomes the source of truth for all subsequent phases.</div>
+            <div class="phase-tags"><span class="tag gold">Claude-led</span><span class="tag">Web Research</span><span class="tag">Domain Brief</span><span class="tag">Standards Review</span></div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num-col"><span class="phase-num">02</span><div class="phase-dot"></div></div>
+          <div class="phase-body">
+            <div class="phase-meta"><div class="phase-title">Scoping Interview</div></div>
+            <div class="phase-desc">Claude works through the Discovery Questions in groups. For every question you cannot answer, Claude states a documented assumption, confirms it with you in one line, and proceeds. The Assumptions Log is opened at this phase and remains live until final delivery. Domain ignorance is never a blocker — it is managed, documented, and disclosed.</div>
+            <div class="phase-tags"><span class="tag teal">You answer or Claude assumes</span><span class="tag">Assumptions Log opened</span><span class="tag">Scope confirmed in writing</span></div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num-col"><span class="phase-num">03</span><div class="phase-dot"></div></div>
+          <div class="phase-body">
+            <div class="phase-meta"><div class="phase-title">Artifact Inventory</div></div>
+            <div class="phase-desc">Identify any input materials you can provide. Claude classifies each against the quality tier model (Gold / Silver / Bronze) and generates realistic synthetic replacements for anything missing. Synthetic data is not generic — it is benchmarked to the target company scale, uses correct field names, and includes realistic edge cases and error conditions.</div>
+            <div class="phase-tags"><span class="tag">Synthetic Data Generation</span><span class="tag blue">Tier assessment</span><span class="tag green">Optional uploads</span></div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num-col"><span class="phase-num">04</span><div class="phase-dot"></div></div>
+          <div class="phase-body">
+            <div class="phase-meta"><div class="phase-title">Wireframe Alignment</div></div>
+            <div class="phase-desc">Claude produces a low-fidelity layout description or inline wireframe covering all screens, information hierarchy, and the primary user journey. You approve before any production code is written. This checkpoint prevents late-stage rework and ensures the prototype tells the right story for the target audience.</div>
+            <div class="phase-tags"><span class="tag gold">Claude produces</span><span class="tag teal">You approve</span><span class="tag">Journey map</span><span class="tag">Screen inventory</span></div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num-col"><span class="phase-num">05</span><div class="phase-dot"></div></div>
+          <div class="phase-body">
+            <div class="phase-meta"><div class="phase-title">Functional Build</div></div>
+            <div class="phase-desc">Claude builds the interactive prototype as a single-file artifact. All UI standards are applied. Every string uses domain-accurate vocabulary from the brief. The primary user journey is completable in under 60 seconds of interaction. An AI Insights panel is included on every dashboard view. Zero placeholder text is tolerated.</div>
+            <div class="phase-tags"><span class="tag gold">Claude-led</span><span class="tag">React or HTML</span><span class="tag green">UI Standards applied</span><span class="tag blue">AI Insights panel</span></div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num-col"><span class="phase-num">06</span><div class="phase-dot"></div></div>
+          <div class="phase-body">
+            <div class="phase-meta"><div class="phase-title">Documentation Package</div></div>
+            <div class="phase-desc">Claude generates a six-tab documentation artifact as a standalone HTML file. Tabs cover: Overview, How to Use (with demo script), Domain Context, Design Decisions, Assumptions Log, and Technical Notes. The file is shareable as a public URL — no login required for recipients. The prototype and documentation can be combined into a single artifact if preferred.</div>
+            <div class="phase-tags"><span class="tag gold">Claude produces</span><span class="tag">Shareable URL</span><span class="tag teal">Client-ready</span><span class="tag purple">Demo script included</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout gold">
+        <div class="callout-title">Core Principle</div>
+        <div class="callout-body">Domain expertise is researched, not assumed. At any phase, saying "I don't know — take the lead" is a valid and correct response. Claude documents every assumption explicitly, and all assumptions are reviewable before delivery. The prototype is only as weak as the assumptions that were left unreviewed.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB 02 · DISCOVERY                                         -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="pane-questions" class="tab-pane">
+      <div class="pane-header">
+        <div class="pane-eyebrow">Phase 02 · Scoping Interview</div>
+        <h2>Discovery <em>Questions</em></h2>
+        <p class="pane-intro">These questions structure every scoping conversation. Claude works through them in groups. For each question you cannot answer, Claude states its assumption using the fallback shown below the card. All assumptions feed the Assumptions Log.</p>
+      </div>
+
+      <h3>Group A — Domain &amp; Audience</h3>
+      <div class="two-col">
+        <div class="q-card">
+          <div class="q-num">A.1</div>
+          <div class="q-title">What industry or domain is this for?</div>
+          <div class="q-body">The specific vertical — payments, supply chain, healthcare data, HR tech, fintech, logistics, observability, risk management, etc.</div>
+          <div class="q-assume">Claude researches 2–3 candidate domains and selects the one with the richest data model and strongest executive narrative for demonstration.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">A.2</div>
+          <div class="q-title">Who is the primary end user of the product?</div>
+          <div class="q-body">Job title, seniority level, technical depth, and the specific daily workflow pain point this product relieves.</div>
+          <div class="q-assume">Claude defines a realistic persona at VP or Director level based on domain research, including a named role, responsibilities, and top-3 frustrations.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">A.3</div>
+          <div class="q-title">What is the product's core value proposition?</div>
+          <div class="q-body">The one sentence that explains why someone would pay for this — the problem eliminated or the outcome delivered.</div>
+          <div class="q-assume">Claude infers the strongest value prop from domain research, competitive landscape, and the persona's identified pain points.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">A.4</div>
+          <div class="q-title">Who is the demo audience?</div>
+          <div class="q-body">The specific role, seniority, and company type of the person who will see this demo — shapes depth, vocabulary, and what to emphasise.</div>
+          <div class="q-assume">Claude defaults to a VP-level technical buyer (CDO, CTO, or Head of Engineering) at a Series B company in the identified vertical.</div>
+        </div>
+      </div>
+
+      <h3>Group B — Functional Scope</h3>
+      <div class="two-col">
+        <div class="q-card">
+          <div class="q-num">B.1</div>
+          <div class="q-title">What are the 2–3 core screens?</div>
+          <div class="q-body">The views the demo will navigate through — dashboard, drill-down, alert detail, configuration, approval queue, etc.</div>
+          <div class="q-assume">Claude designs the canonical screen set for the domain, confirmed against competitor research and common SaaS patterns in the vertical.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">B.2</div>
+          <div class="q-title">What is the primary interactive action?</div>
+          <div class="q-body">The single most impressive thing a user can do in the demo: filter, drill down, approve, configure, generate an alert, chat with an AI assistant.</div>
+          <div class="q-assume">Claude selects the interaction that most effectively demonstrates intelligence and operational value for the target buyer.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">B.3</div>
+          <div class="q-title">What KPIs or metrics must appear?</div>
+          <div class="q-body">The specific numbers that prove the product works — throughput, SLO compliance, error rate, revenue at risk, processing latency, data quality score, etc.</div>
+          <div class="q-assume">Claude uses the canonical KPI framework for the domain (e.g. RED/USE for observability, DQ dimensions for data quality, FTE savings for automation).</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">B.4</div>
+          <div class="q-title">What data volume and scale looks credible?</div>
+          <div class="q-body">Approximate transaction counts, record volumes, or event rates that match the target company's scale — too few looks like a toy, too many looks implausible.</div>
+          <div class="q-assume">Claude benchmarks to a Series B company in the vertical using publicly available industry data and generates volumes accordingly.</div>
+        </div>
+      </div>
+
+      <h3>Group C — Branding &amp; Constraints</h3>
+      <div class="two-col">
+        <div class="q-card">
+          <div class="q-num">C.1</div>
+          <div class="q-title">Is there a product or company name to use?</div>
+          <div class="q-body">The name displayed in the prototype header. Can be the client's actual product name, a white-label name, or a fictional placeholder.</div>
+          <div class="q-assume">Claude generates a credible SaaS product name appropriate to the domain and buyer — professional, not generic.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">C.2</div>
+          <div class="q-title">Any visual style or colour preferences?</div>
+          <div class="q-body">Light vs dark theme, conservative vs modern, existing brand colours or hex codes, any competitor UI to reference or differentiate from.</div>
+          <div class="q-assume">Claude selects a dark, refined aesthetic with a gold accent — a combination that reads as premium and technically sophisticated to executive buyers.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">C.3</div>
+          <div class="q-title">What must the prototype NOT show or imply?</div>
+          <div class="q-body">Features under NDA, competitor comparisons, pricing signals, capabilities not yet built, real customer data, or anything that creates a legal or reputational risk.</div>
+          <div class="q-assume">Claude applies demo-safe defaults: no pricing, no named competitors, no real PII, no uncommitted product roadmap features.</div>
+        </div>
+        <div class="q-card">
+          <div class="q-num">C.4</div>
+          <div class="q-title">What is the success definition for this demo?</div>
+          <div class="q-body">The specific reaction, outcome, or next step the demo is designed to trigger — a follow-up meeting, a pilot agreement, a procurement conversation, a technical deep-dive.</div>
+          <div class="q-assume">Claude optimises the prototype to generate a clear "I want to see more" reaction — compelling enough to advance the conversation, not so complete it eliminates the need for one.</div>
+        </div>
+      </div>
+
+      <div class="callout teal">
+        <div class="callout-title">Assumption Protocol</div>
+        <div class="callout-body">For every question you cannot answer, respond with: "I don't know — please assume and document." Claude will state the assumption in one sentence, confirm it is reasonable, add it to the Assumptions Log with a rationale, and proceed. You review the log before any client interaction. Undisclosed assumptions are the primary risk in prototype demos — this protocol eliminates that risk.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB 03 · ARTIFACTS                                         -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="pane-artifacts" class="tab-pane">
+      <div class="pane-header">
+        <div class="pane-eyebrow">Phase 03 · Input Materials</div>
+        <h2>Input Artifact <em>Inventory</em></h2>
+        <p class="pane-intro">Provide whatever materials you have. Claude classifies each against the quality tiers below and generates realistic synthetic replacements for anything missing. Having nothing is manageable — the Bronze tier still produces a credible, demo-ready prototype.</p>
+      </div>
+
+      <div class="artifact-grid">
+        <div class="artifact-card">
+          <span class="artifact-icon">📄</span>
+          <div class="artifact-name">Sample Data Files</div>
+          <div class="artifact-desc">CSV, JSON, or Excel exports from any existing system. Claude extracts the schema, field names, and value patterns, then generates a synthetic dataset at the right scale.</div>
+          <div class="artifact-ex">Transaction logs, customer records, event streams, audit trails, API response payloads</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">🖼️</span>
+          <div class="artifact-name">UI Screenshots</div>
+          <div class="artifact-desc">Screenshots of existing tools, competitor products, or rough sketches. Used for layout reference, feature parity analysis, and visual differentiation strategy.</div>
+          <div class="artifact-ex">Current dashboard, Figma mockup, Miro board, hand sketch photograph</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">📋</span>
+          <div class="artifact-name">Process Documents</div>
+          <div class="artifact-desc">SOPs, runbooks, workflow diagrams, and operating procedures. Claude extracts the real steps users follow and builds them into the prototype flow and navigation.</div>
+          <div class="artifact-ex">Incident runbooks, approval workflows, onboarding guides, operating procedures</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">📊</span>
+          <div class="artifact-name">Reports &amp; Decks</div>
+          <div class="artifact-desc">Existing presentations, QBRs, or board decks. Used to extract real metrics, executive vocabulary, and the narrative the prototype should reinforce.</div>
+          <div class="artifact-ex">Quarterly business reviews, board decks, audit reports, investor materials</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">🏗️</span>
+          <div class="artifact-name">Architecture Diagrams</div>
+          <div class="artifact-desc">System architecture, data flow maps, or integration topology. Grounds the prototype in a technically credible system model that withstands CTO scrutiny.</div>
+          <div class="artifact-ex">AWS architecture, Miro system map, draw.io export, Lucidchart, C4 diagram</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">📝</span>
+          <div class="artifact-name">API / Schema Specs</div>
+          <div class="artifact-desc">OpenAPI specs, data dictionaries, or database schemas. Ensures all field names, data types, and entity relationships are technically accurate.</div>
+          <div class="artifact-ex">Swagger YAML, ERD, data dictionary, ISO message specifications (pacs.008, camt.054)</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">🧑‍💼</span>
+          <div class="artifact-name">Persona Descriptions</div>
+          <div class="artifact-desc">Job descriptions, LinkedIn profiles, or org charts for the target user or buyer role. Ensures terminology, pain points, and workflow language feel authentic.</div>
+          <div class="artifact-ex">Job descriptions, org charts, LinkedIn role summaries, buyer persona documents</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">📰</span>
+          <div class="artifact-name">Industry Research</div>
+          <div class="artifact-desc">Analyst reports, white papers, or trade publications. Provides benchmark metrics, industry vocabulary, and the macro trends the prototype can reference.</div>
+          <div class="artifact-ex">Gartner reports, McKinsey briefs, IDC studies, industry association publications</div>
+        </div>
+        <div class="artifact-card">
+          <span class="artifact-icon">🔗</span>
+          <div class="artifact-name">Reference URLs</div>
+          <div class="artifact-desc">Competitor product pages, inspiration references, or documentation sites. Claude researches the product's feature set, UI patterns, and positioning claims.</div>
+          <div class="artifact-ex">Competitor product pages, feature comparison pages, public API documentation</div>
+        </div>
+      </div>
+
+      <h3>Quality Tier Assessment</h3>
+      <div class="tier-table">
+        <div class="tier-row">
+          <div class="tier-badge-col"><span class="tier-badge gold">Gold</span></div>
+          <div class="tier-body">
+            <div class="tier-title">Real data + architecture + persona document</div>
+            <div class="tier-desc">Maximum realism. Claude produces a prototype indistinguishable from a production product in terms of data fidelity, technical depth, and user language. Recommended for late-stage advisory conversations where technical credibility is being directly evaluated.</div>
+          </div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-badge-col"><span class="tier-badge silver">Silver</span></div>
+          <div class="tier-body">
+            <div class="tier-title">Screenshots or one sample data file</div>
+            <div class="tier-desc">Good realism. Claude reverse-engineers the schema and visual language, then fills in the rest synthetically. Sufficient for most executive demos where the audience is evaluating capability, not auditing data.</div>
+          </div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-badge-col"><span class="tier-badge bronze">Bronze</span></div>
+          <div class="tier-body">
+            <div class="tier-title">Domain name only — no materials available</div>
+            <div class="tier-desc">Claude researches the domain from scratch using web research and industry benchmarks. Produces a credible prototype with correct vocabulary and plausible data. Appropriate for first-contact advisory conversations and unsolicited capability demonstrations.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout teal">
+        <div class="callout-title">Zero-Input Prompt</div>
+        <div class="callout-body">If you have no input materials, tell Claude: "I have no input artifacts. Research the [domain] space and generate a complete synthetic dataset including realistic field names, plausible volumes, and edge cases typical of a Series B company in this vertical. Use the Bronze tier approach and document all assumptions." Claude will produce everything needed to proceed.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB 04 · PROMPTS                                           -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="pane-prompts" class="tab-pane">
+      <div class="pane-header">
+        <div class="pane-eyebrow">Phase 01–06 · Reusable Templates</div>
+        <h2>Prompt <em>Templates</em></h2>
+        <p class="pane-intro">Five production-grade prompts, one per engagement stage. Fields in gold are fillable — leave them blank and add "or assume" to trigger the assumption protocol. Copy each prompt with the button and paste directly into Claude.</p>
+      </div>
+
+      <h3>Prompt 01 — Kickoff</h3>
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-header-left">
+            <span class="prompt-badge">Phase 1–3</span>
+            <span class="prompt-label">Covers domain research, scoping interview, and artifact inventory in one session</span>
+          </div>
+          <button class="copy-btn" onclick="copyPrompt(this,'p1')">Copy</button>
+        </div>
+        <div class="prompt-body" id="p1">I am building a functional prototype to demonstrate my capabilities as a fractional CDO / Tech Leader.
+
+<span class="kw">Domain:</span> <span class="ph">[NAME THE DOMAIN — or say "you choose the most compelling one"]</span>
+<span class="kw">Target demo audience:</span> <span class="ph">[ROLE + COMPANY TYPE — e.g. "CDO at a Series B fintech" / or say "you choose"]</span>
+<span class="kw">Input artifacts I can provide:</span> <span class="ph">[LIST FILES OR URLS — or say "none, please generate everything"]</span>
+
+Before writing any code, complete these three steps in order:
+
+<span class="kw">Step 1 — Domain Brief:</span> Research the domain and produce a structured brief covering:
+  · Primary personas (role, seniority, top-3 daily frustrations)
+  · Core workflows the product would sit inside
+  · Canonical data entities and their key fields
+  · Industry KPIs and the benchmarks that make them meaningful
+  · Relevant compliance, regulatory, or standards context
+  · Vocabulary practitioners use (avoid generic terms)
+
+<span class="kw">Step 2 — Scoping Interview:</span> Ask me the Discovery Questions in three groups (Domain/Audience, Functional Scope, Branding/Constraints). For any question I cannot answer, state your assumption clearly, confirm it is reasonable, and proceed. Open an Assumptions Log.
+
+<span class="kw">Step 3 — Artifact Inventory:</span> Based on what I provided, classify against Gold/Silver/Bronze tiers and list what you will generate synthetically. Confirm the data approach before generating.
+
+After completing all three steps, present a one-paragraph build plan and wait for my explicit approval before writing any code.</div>
+      </div>
+
+      <h3>Prompt 02 — Assumption Override</h3>
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-header-left">
+            <span class="prompt-badge">Any Phase</span>
+            <span class="prompt-label">Use whenever you cannot answer a scoping question</span>
+          </div>
+          <button class="copy-btn" onclick="copyPrompt(this,'p2')">Copy</button>
+        </div>
+        <div class="prompt-body" id="p2">I don't have enough domain knowledge or context to answer that question reliably.
+
+Please take the lead:
+1. State the most realistic assumption a senior practitioner in this domain would make
+2. Provide a one-sentence rationale for why this assumption is defensible
+3. Add it to the Assumptions Log with a [ASSUMED] marker
+4. Proceed without waiting for confirmation
+
+After completing this section, present the full Assumptions Log so I can review and override any entry before we move forward.</div>
+      </div>
+
+      <h3>Prompt 03 — Functional Build</h3>
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-header-left">
+            <span class="prompt-badge">Phase 5</span>
+            <span class="prompt-label">Issue after wireframe alignment is approved</span>
+          </div>
+          <button class="copy-btn" onclick="copyPrompt(this,'p3')">Copy</button>
+        </div>
+        <div class="prompt-body" id="p3">Build the functional prototype as a single-file artifact (React or HTML as appropriate).
+
+<span class="kw">Content rules:</span>
+· Use the domain brief and assumptions log as the single source of truth for all content
+· Every string must use domain-accurate vocabulary — zero placeholder text permitted
+· Synthetic data must use correct field names, realistic values, and include 2–3 anomalies or edge cases that make the AI Insights panel credible
+
+<span class="kw">UI standards to apply:</span>
+· Metric cards at the top of every dashboard: label (12px uppercase), primary value (24–28px), delta with directional colour
+· One primary chart per screen — chosen to support the KPI story, not decorative
+· Sortable, filterable data table with status badges, monospace IDs, and row-level hover actions
+· AI Insights panel (purple-accented): one headline finding, one recommendation, one active alert
+· Spacing scale: 4 / 8 / 12 / 16 / 24 / 32px — no arbitrary values
+· Typographic hierarchy: Display 32px / H1 22px / H2 18px / H3 15px / Body 14px / Label 12px uppercase / Caption 12px / Mono 13px
+· Colour system: Blue=CTA/active, Green=healthy, Amber=warning, Red=critical/error, Purple=AI outputs, Gray=structural
+
+<span class="kw">Interaction standard:</span>
+· Primary user journey completable in under 60 seconds
+· At least one meaningful interaction on the first click
+· No dead buttons or non-functional controls
+
+<span class="kw">Completion criteria:</span>
+· Confirm zero placeholder text in a post-build check
+· List all interactive elements and what they do
+· Note any assumptions made during the build that differ from the scoping log</div>
+      </div>
+
+      <h3>Prompt 04 — Documentation Package</h3>
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-header-left">
+            <span class="prompt-badge">Phase 6</span>
+            <span class="prompt-label">Run after the prototype passes the handoff checklist</span>
+          </div>
+          <button class="copy-btn" onclick="copyPrompt(this,'p4')">Copy</button>
+        </div>
+        <div class="prompt-body" id="p4">Build a standalone documentation page as a separate HTML file with tabbed navigation. This is a client-facing deliverable.
+
+<span class="kw">Required tabs:</span>
+
+1. <span class="kw">Overview</span> — Business problem statement, solution narrative, and value proposition. Executive tone — no technical jargon. 200–300 words. Written for a CDO or VP Engineering reading this cold for the first time.
+
+2. <span class="kw">How to Use</span> — Numbered walkthrough of every interactive element. For each step, include: what to click, what happens, and a suggested 1–2 sentence demo script the presenter can use verbatim. This tab serves as a rehearsal guide.
+
+3. <span class="kw">Domain Context</span> — The full domain research brief from Phase 1: personas, workflows, data model, KPIs with benchmarks, and standards context. Shows the client that the prototype reflects real operational reality.
+
+4. <span class="kw">Design Decisions</span> — UI choices and rationale, component patterns used, colour system semantics, typographic hierarchy. Demonstrates engineering thoughtfulness and intentionality.
+
+5. <span class="kw">Assumptions Log</span> — Every assumption made during the engagement, formatted as a numbered list with: assumption statement, rationale, and status (confirmed / unreviewed / override). This is the transparency layer that builds trust.
+
+6. <span class="kw">Technical Notes</span> — Stack, synthetic data methodology, architecture model used, extension points for production implementation, and estimated effort to move from prototype to MVP. Relevant to CTOs and solutions architects.
+
+<span class="kw">Design requirements:</span>
+· Match the visual style of the prototype (dark theme, same typefaces and colour palette)
+· Sticky header with tab navigation
+· Responsive to 320px minimum width
+· Professional tone throughout — no AI-generated filler phrases
+· Include a version number and "Prototype — Not for Production" watermark in the footer</div>
+      </div>
+
+      <h3>Prompt 05 — Controlled Iteration</h3>
+      <div class="prompt-card">
+        <div class="prompt-header">
+          <div class="prompt-header-left">
+            <span class="prompt-badge">Post-Build</span>
+            <span class="prompt-label">For any refinement, change request, or post-demo adjustment</span>
+          </div>
+          <button class="copy-btn" onclick="copyPrompt(this,'p5')">Copy</button>
+        </div>
+        <div class="prompt-body" id="p5">Refine the prototype based on the following feedback:
+
+<span class="ph">[DESCRIBE THE CHANGE CLEARLY — what to add, remove, or modify, and why]</span>
+
+<span class="kw">Constraints — you must not:</span>
+· Break any existing interactive functionality
+· Introduce placeholder text
+· Deviate from the established UI standards (spacing, typography, colour system)
+· Change any assumption in the log without flagging it to me first
+
+<span class="kw">Constraints — you must:</span>
+· Confirm every change against the current assumptions log before implementing
+· Test that the primary user journey still completes in under 60 seconds
+· Produce a change log at the end of your response listing: what changed, why, and whether any assumption was affected
+
+If any part of the requested change conflicts with the domain brief, the assumptions log, or the UI standards, flag the conflict before implementing and propose a compliant alternative.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB 05 · UI STANDARDS                                      -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="pane-ui" class="tab-pane">
+      <div class="pane-header">
+        <div class="pane-eyebrow">Phase 05 · Design System</div>
+        <h2>UI <em>Standards</em></h2>
+        <p class="pane-intro">These standards apply to every prototype without exception. They encode the visual language of a credible, production-grade enterprise SaaS product. Paste the reference block from Prompt 03 to apply them automatically.</p>
+      </div>
+
+      <h3>Typographic Hierarchy</h3>
+      <table class="std-table">
+        <thead>
+          <tr><th>Level</th><th>Size</th><th>Weight</th><th>Role</th><th>Constraint</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="t-level">Display</span></td><td><span class="t-size">28–36px</span></td><td>500</td><td>Hero KPI, product name, hero metric</td><td>One per screen maximum. The single number that proves the product works.</td></tr>
+          <tr><td><span class="t-level">H1</span></td><td><span class="t-size">22px</span></td><td>500</td><td>Screen or page title</td><td>One per view. Never repeated within a screen.</td></tr>
+          <tr><td><span class="t-level">H2</span></td><td><span class="t-size">18px</span></td><td>500</td><td>Section heading</td><td>Major content groups. Maximum 4 per screen.</td></tr>
+          <tr><td><span class="t-level">H3</span></td><td><span class="t-size">15px</span></td><td>500</td><td>Card title, panel label</td><td>Use freely within components and cards.</td></tr>
+          <tr><td><span class="t-level">Body</span></td><td><span class="t-size">14px</span></td><td>400</td><td>All prose and descriptions</td><td>Line-height 1.7. Default for all text content.</td></tr>
+          <tr><td><span class="t-level">Label</span></td><td><span class="t-size">12px</span></td><td>500</td><td>Form labels, table column headers, stat card labels</td><td>All-caps. Letter-spacing 0.5–0.8px. Always.</td></tr>
+          <tr><td><span class="t-level">Caption</span></td><td><span class="t-size">12px</span></td><td>400</td><td>Timestamps, helper text, secondary annotations</td><td>Muted colour. Never below 11px. Never bold.</td></tr>
+          <tr><td><span class="t-level">Mono</span></td><td><span class="t-size">13px</span></td><td>400</td><td>All technical identifiers</td><td>Transaction IDs, UETRs, reference numbers, status codes, version strings. No exceptions.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Semantic Colour System</h3>
+      <div class="color-grid">
+        <div class="color-card"><div class="color-bar" style="background:#6B9FE8;"></div><div class="color-name">Accent — Blue</div><div class="color-use">Primary CTAs, active tab states, selected rows, links, key metric highlights, interactive elements</div><div class="color-hex">#6B9FE8</div></div>
+        <div class="color-card"><div class="color-bar" style="background:#52C97A;"></div><div class="color-name">Success — Green</div><div class="color-use">Healthy status, positive delta indicators, completed states, SLO met, data quality passing</div><div class="color-hex">#52C97A</div></div>
+        <div class="color-card"><div class="color-bar" style="background:#C9A84C;"></div><div class="color-name">Warning — Amber</div><div class="color-use">Degraded performance, approaching threshold, advisory alerts, moderate risk indicators</div><div class="color-hex">#C9A84C</div></div>
+        <div class="color-card"><div class="color-bar" style="background:#E05252;"></div><div class="color-name">Critical — Red</div><div class="color-use">Errors, SLO breach, failed transactions, blocked states, high severity, data anomalies</div><div class="color-hex">#E05252</div></div>
+        <div class="color-card"><div class="color-bar" style="background:#6B6B70;"></div><div class="color-name">Neutral — Gray</div><div class="color-use">Structural chrome, inactive states, borders, backgrounds, pending, informational, unknown</div><div class="color-hex">#6B6B70</div></div>
+        <div class="color-card"><div class="color-bar" style="background:#A47FDB;"></div><div class="color-name">Insight — Purple</div><div class="color-use">AI/ML outputs, automated recommendations, smart alerts, predictive signals, model confidence</div><div class="color-hex">#A47FDB</div></div>
+      </div>
+
+      <h3>Layout Rules</h3>
+      <div class="rules-list">
+        <div class="rule-item">
+          <div class="rule-num-col">R1</div>
+          <div class="rule-content">
+            <div class="rule-title">Metric cards anchor every dashboard</div>
+            <div class="rule-desc">Every dashboard view opens with 3–5 KPI cards in a horizontal grid. Each card: 12px uppercase label, 24–28px primary value (weight 500), and a delta indicator with directional colour (green = up good, red = up bad as appropriate for the metric).</div>
+            <div class="rule-example">Structure: [LABEL] / [VALUE] / [±DELTA %] — never omit the delta</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num-col">R2</div>
+          <div class="rule-content">
+            <div class="rule-title">One primary chart per screen</div>
+            <div class="rule-desc">Time-series line, funnel, distribution, or heatmap — chosen specifically to support the story the KPI cards are telling. No decorative, redundant, or "dashboard bloat" charts. Every chart must earn its space by answering a question the KPIs raise.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num-col">R3</div>
+          <div class="rule-content">
+            <div class="rule-title">Sortable, filterable data table below the fold</div>
+            <div class="rule-desc">Column headers sortable on click. At minimum one filter (status or time range). Row-level actions visible on hover. Status badges using the colour system. All technical identifiers in monospace. Timestamps in ISO 8601 or the domain-standard format.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num-col">R4</div>
+          <div class="rule-content">
+            <div class="rule-title">AI Insights panel on every dashboard view</div>
+            <div class="rule-desc">Purple-accented right panel or collapsible drawer. Contains exactly three elements: one headline insight (what is happening), one recommendation (what to do), one active alert (what to watch). Signals intelligence without crowding the operational view. Clearly labeled as AI-generated.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num-col">R5</div>
+          <div class="rule-content">
+            <div class="rule-title">Zero placeholder text — absolute rule</div>
+            <div class="rule-desc">Lorem ipsum, "Sample data", "Coming soon", "N/A", "TBD", "Example Company", "User Name" — banned without exception. Every visible string must use domain-accurate vocabulary and realistic values. Violated by any Claude generation? Instruct a rebuild of the offending component.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num-col">R6</div>
+          <div class="rule-content">
+            <div class="rule-title">Spacing scale: 4 / 8 / 12 / 16 / 24 / 32 / 48px</div>
+            <div class="rule-desc">Internal component padding: 12–16px. Card-to-card gap: 12px. Section-to-section gap: 24–32px. Page margin: 32–48px. No arbitrary pixel values outside this scale anywhere in the prototype.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num-col">R7</div>
+          <div class="rule-content">
+            <div class="rule-title">Meaningful interaction on the first click</div>
+            <div class="rule-desc">A filter activates, a drill-down opens, a modal appears, or a visible state changes on the first interaction. A prototype requiring 3+ clicks to demonstrate any interactivity fails the demo standard. Every control must do something visible and non-trivial.</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-num-col">R8</div>
+          <div class="rule-content">
+            <div class="rule-title">Polished at 1280px — the presentation viewport</div>
+            <div class="rule-desc">Prototypes must render without horizontal overflow, collapsed grids, or truncated labels at 1280×800 — the standard laptop screen in presentation mode. Test in a browser at this resolution before any client interaction.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB 06 · GOVERNANCE                                        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="pane-governance" class="tab-pane">
+      <div class="pane-header">
+        <div class="pane-eyebrow">Engagement Management · Risk &amp; Quality</div>
+        <h2>Governance <em>Framework</em></h2>
+        <p class="pane-intro">The framework that makes this playbook robust enough for fractional CDO engagements. Covers the Assumptions Log protocol, demo risk management, quality gates, and intellectual property hygiene.</p>
+      </div>
+
+      <h3>RACI — Roles &amp; Responsibilities</h3>
+      <div class="matrix-grid">
+        <div class="matrix-cell">
+          <div class="matrix-header gold">You — Fractional CDO</div>
+          <ul class="matrix-list">
+            <li>Approve domain brief before build begins</li>
+            <li>Review and sign off Assumptions Log</li>
+            <li>Conduct client handoff checklist</li>
+            <li>Own all client communications referencing the prototype</li>
+            <li>Decide what is and is not shown in a live demo</li>
+            <li>Flag any real client data before Claude sees it</li>
+          </ul>
+        </div>
+        <div class="matrix-cell">
+          <div class="matrix-header teal">Claude — Research &amp; Build</div>
+          <ul class="matrix-list">
+            <li>Research domain and produce the brief</li>
+            <li>Conduct the scoping interview</li>
+            <li>Generate and classify synthetic data</li>
+            <li>Build the prototype per UI standards</li>
+            <li>Maintain and update the Assumptions Log</li>
+            <li>Produce the documentation package</li>
+          </ul>
+        </div>
+        <div class="matrix-cell">
+          <div class="matrix-header blue">Client — Prospect / Stakeholder</div>
+          <ul class="matrix-list">
+            <li>Receives the shareable documentation URL</li>
+            <li>Interacts with the live prototype</li>
+            <li>Reviews the Assumptions Log tab</li>
+            <li>Does not see Claude conversation history</li>
+            <li>Evaluates capability, not production code</li>
+          </ul>
+        </div>
+        <div class="matrix-cell">
+          <div class="matrix-header purple">Shared — Both Parties</div>
+          <ul class="matrix-list">
+            <li>No real client PII ever enters a prototype</li>
+            <li>No real proprietary systems are referenced by name without consent</li>
+            <li>Prototype is clearly labeled as a demonstration artifact</li>
+            <li>Assumptions Log is disclosed before any commercial discussion</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Assumptions Log Protocol</h3>
+      <div class="tier-table">
+        <div class="tier-row">
+          <div class="tier-badge-col"><span class="tier-badge gold">Open</span></div>
+          <div class="tier-body">
+            <div class="tier-title">Assumption stated, not yet reviewed</div>
+            <div class="tier-desc">Claude has made an assumption and documented it. You have not yet confirmed or overridden it. The prototype is not client-ready while Open assumptions exist for high-stakes claims.</div>
+          </div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-badge-col"><span class="tier-badge silver">Confirmed</span></div>
+          <div class="tier-body">
+            <div class="tier-title">You have reviewed and accepted the assumption</div>
+            <div class="tier-desc">You have read the assumption, agree it is reasonable, and accept responsibility for it in client conversations. Confirmed assumptions can be disclosed proactively as a sign of rigor.</div>
+          </div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-badge-col"><span class="tier-badge bronze">Override</span></div>
+          <div class="tier-body">
+            <div class="tier-title">You have replaced the assumption with a verified fact</div>
+            <div class="tier-desc">You provided the correct information, Claude has updated the prototype and documentation, and the original assumption is logged as superseded. This is the highest-quality state.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Demo Risk Register</h3>
+      <table class="risk-table">
+        <thead>
+          <tr><th>Risk</th><th>Level</th><th>Mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--ink);">Client asks if this is production code</strong><br>Prototype is mistaken for a real product</td>
+            <td><span class="risk-level high">High</span></td>
+            <td>Documentation tab includes explicit "Prototype — Demonstration Artifact" label. Introduce as a capability demo, never as a product. Have the How to Use tab open during the demo.</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--ink);">Domain inaccuracy challenged by an expert</strong><br>Client's internal SME spots incorrect terminology or workflow</td>
+            <td><span class="risk-level high">High</span></td>
+            <td>Domain brief is visible in the documentation. Assumptions Log is disclosed. Frame any correction as: "That's a great catch — this assumption was flagged for review. What's the correct field name in your environment?"</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--ink);">Data looks fabricated</strong><br>Synthetic data volumes or values are implausible</td>
+            <td><span class="risk-level med">Med</span></td>
+            <td>Use the Build Prompt's synthetic data instruction which benchmarks to Series B company scale. Review all metric card values before any demo. Replace any round numbers that look generated.</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--ink);">Interactive elements fail live</strong><br>A button or filter does nothing during a client walkthrough</td>
+            <td><span class="risk-level med">Med</span></td>
+            <td>Test all interactive elements at 1280px before every client interaction. Run the handoff checklist. Have a screen recording as backup if the live demo environment is unreliable.</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--ink);">Employment IP conflict</strong><br>Prototype content overlaps with current employer's domain or systems</td>
+            <td><span class="risk-level med">Med</span></td>
+            <td>All content is synthetic and domain-generic. No real system names, client names, or proprietary data are used. Keep the GitHub repository private by default. Review employment contract IP clauses before any commercial advisory work.</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--ink);">Shared URL becomes stale or broken</strong><br>Client accesses the demo link after the repository is set to private</td>
+            <td><span class="risk-level low">Low</span></td>
+            <td>Set a calendar reminder to keep the repository public for 30 days after sharing. Or use Netlify Drop for persistent hosting decoupled from repository visibility.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Quality Gates — Do Not Proceed Without These</h3>
+      <ul class="checklist">
+        <li><span class="check-box"></span><div><strong style="color:var(--ink);">Gate 1 (after Phase 2):</strong> Domain brief reviewed and approved. No material inaccuracies in terminology, personas, or KPIs.</div></li>
+        <li><span class="check-box"></span><div><strong style="color:var(--ink);">Gate 2 (after Phase 2):</strong> Assumptions Log reviewed. All Open assumptions either confirmed or overridden before build begins.</div></li>
+        <li><span class="check-box"></span><div><strong style="color:var(--ink);">Gate 3 (after Phase 4):</strong> Wireframe approved. Screen inventory, information hierarchy, and user journey confirmed in writing.</div></li>
+        <li><span class="check-box"></span><div><strong style="color:var(--ink);">Gate 4 (after Phase 5):</strong> Zero placeholder text confirmed. All interactive elements tested. Primary user journey runs in under 60 seconds.</div></li>
+        <li><span class="check-box"></span><div><strong style="color:var(--ink);">Gate 5 (after Phase 6):</strong> Documentation package reviewed. Assumptions Log tab is accurate. Prototype labeled as demonstration artifact.</div></li>
+        <li><span class="check-box"></span><div><strong style="color:var(--ink);">Gate 6 (pre-client):</strong> Tested at 1280×800 in a fresh browser tab. Shared URL opens correctly without login. Screen recording made as backup.</div></li>
+      </ul>
+
+      <div class="callout red">
+        <div class="callout-title">Hard Stop — Never Do These</div>
+        <div class="callout-body">Never use real client data, real customer PII, or real transaction records from any current or former employer. Never reference a real named client, account, or counterparty without explicit consent. Never present the prototype as production-ready software. Never share the GitHub repository URL with a client — share only the GitHub Pages URL or a Netlify link. Never demo from a laptop without first running the handoff checklist.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- TAB 07 · DOCUMENTATION                                     -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="pane-docs" class="tab-pane">
+      <div class="pane-header">
+        <div class="pane-eyebrow">Phase 06 · Client Deliverable</div>
+        <h2>Documentation <em>Package</em></h2>
+        <p class="pane-intro">Every prototype ships with a companion documentation artifact. Built as a standalone HTML file with its own tab navigation — clients receive one URL that covers the live prototype, a guided walkthrough, the domain research, and the full assumptions log.</p>
+      </div>
+
+      <h3>Required Tab Structure</h3>
+      <div class="doc-tab-list">
+        <div class="doc-tab-item">
+          <div class="doc-tab-name"><span class="tab-n">01</span>Overview</div>
+          <div class="doc-tab-desc">Business problem statement, solution narrative, and value proposition in 200–300 words. Executive tone — written for a CDO or VP Engineering encountering the prototype for the first time. No technical jargon. This is the tab that earns the next conversation.</div>
+        </div>
+        <div class="doc-tab-item">
+          <div class="doc-tab-name"><span class="tab-n">02</span>How to Use</div>
+          <div class="doc-tab-desc">Numbered walkthrough of every interactive element, with a suggested 1–2 sentence demo script per step. Functions as a rehearsal guide for the presenter and a self-service guide for clients exploring independently. Written as a tour, not a manual.</div>
+        </div>
+        <div class="doc-tab-item">
+          <div class="doc-tab-name"><span class="tab-n">03</span>Domain Context</div>
+          <div class="doc-tab-desc">The full domain research brief: personas with named roles and frustrations, workflow descriptions, data model with key entities and fields, KPIs with industry benchmarks, and relevant standards or compliance context. Proves the prototype reflects real operational reality.</div>
+        </div>
+        <div class="doc-tab-item">
+          <div class="doc-tab-name"><span class="tab-n">04</span>Design Decisions</div>
+          <div class="doc-tab-desc">UI choices and their rationale — why dark theme, why this colour system, why these components. Typographic hierarchy explained. Accessibility considerations noted. AI Insights panel design rationale. Demonstrates engineering discipline and design intentionality.</div>
+        </div>
+        <div class="doc-tab-item">
+          <div class="doc-tab-name"><span class="tab-n">05</span>Assumptions Log</div>
+          <div class="doc-tab-desc">Every assumption made during the engagement: the assumption statement, the rationale, and its status (Confirmed / Open / Override). Formatted as a numbered, scannable list. The transparency layer that converts scrutiny into trust — the best clients appreciate seeing it.</div>
+        </div>
+        <div class="doc-tab-item">
+          <div class="doc-tab-name"><span class="tab-n">06</span>Technical Notes</div>
+          <div class="doc-tab-desc">Stack, synthetic data methodology, architecture model referenced, data entity relationships, and extension points for production implementation. Includes a rough effort estimate (T-shirt size) to move from prototype to MVP. Credibility layer for CTO and solutions architect audiences.</div>
+        </div>
+      </div>
+
+      <h3>Sharing as a Client-Facing URL</h3>
+      <div class="share-panel">
+        <div class="share-title">One link — prototype and documentation together</div>
+        <div class="share-sub">Claude generates the documentation as a standalone HTML file. Uploaded to GitHub Pages (or Netlify Drop), it becomes a public URL the client opens in any browser — no account, no login, no friction.</div>
+        <div class="share-url">https://[username].github.io/[repo-name]/docs/[engagement-name].html</div>
+        <div class="share-steps">
+          <div class="share-step"><div class="share-step-n">Step 01</div><div class="share-step-t">Run Prompt 04 after the prototype passes all quality gates</div></div>
+          <div class="share-step"><div class="share-step-n">Step 02</div><div class="share-step-t">Upload the HTML file to the GitHub repo and set it public</div></div>
+          <div class="share-step"><div class="share-step-n">Step 03</div><div class="share-step-t">Send the GitHub Pages URL — client opens it, no login required</div></div>
+        </div>
+      </div>
+
+      <h3>Client Handoff Checklist</h3>
+      <ul class="checklist">
+        <li><span class="check-box"></span>Replace all placeholder company or product names with the client's name or an approved fictional brand</li>
+        <li><span class="check-box"></span>Verify every metric value is plausible at the client's company scale — no round numbers, no default values</li>
+        <li><span class="check-box"></span>Review the Assumptions Log tab — every entry is accurate, confirmed, or overridden</li>
+        <li><span class="check-box"></span>Confirm the "Prototype — Demonstration Artifact" label is visible in the footer</li>
+        <li><span class="check-box"></span>Test all interactive elements in a fresh browser tab at 1280×800 resolution</li>
+        <li><span class="check-box"></span>Confirm zero placeholder text remains in any screen ("Lorem", "Sample", "N/A", "TBD", "Example")</li>
+        <li><span class="check-box"></span>Confirm the primary user journey completes in under 60 seconds without instruction</li>
+        <li><span class="check-box"></span>Verify the shared URL is accessible without a Claude.ai or GitHub login</li>
+        <li><span class="check-box"></span>Make a screen recording of the full demo walkthrough as a backup</li>
+        <li><span class="check-box"></span>Set a 30-day calendar reminder to review whether the URL should remain public</li>
+      </ul>
+
+      <h3>Playbook Version History</h3>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot gold"></div>
+          <div class="tl-version">v2.0 · Current</div>
+          <div class="tl-title">Fractional CDO Edition</div>
+          <div class="tl-desc">Added Governance tab with RACI model, Risk Register, and Quality Gates. Refined all five prompt templates for production use. Added demo risk protocol and IP hygiene rules. Expanded assumptions log to three-state model (Open / Confirmed / Override). Client handoff checklist extended to ten items.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot dim"></div>
+          <div class="tl-version">v1.0 · Previous</div>
+          <div class="tl-title">Initial Release</div>
+          <div class="tl-desc">Six-phase build framework, five prompt templates, UI standards, discovery questions, artifact inventory, and documentation structure. Foundational methodology established.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end playbook-container -->
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Prototype Playbook</div>
+    <div class="footer-meta">
+      <span>v2.0 · Fractional CDO Edition</span>
+      <span class="footer-sep">·</span>
+      <span>Prototype — Demonstration Artifact</span>
+      <span class="footer-sep">·</span>
+      <span>Built with Claude · Anthropic</span>
+      <span class="footer-sep">·</span>
+      <span id="build-date"></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Tab switching
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Copy prompts — strips HTML tags
+function copyPrompt(btn, id) {
+  const el = document.getElementById(id);
+  // Get text content, preserve line breaks
+  let text = '';
+  el.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      text += node.textContent;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node.tagName === 'BR') { text += '\n'; }
+      else { text += node.textContent; }
+    }
+  });
+  text = text.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+  });
+}
+
+// Build date
+document.getElementById('build-date').textContent =
+  new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+</script>
+</body>
+</html>

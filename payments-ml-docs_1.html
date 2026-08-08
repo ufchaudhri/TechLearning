@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incident Prediction Model — Executive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --paper: #faf8f4;
+  --paper2: #f2efe9;
+  --paper3: #e8e3db;
+  --ink: #18140e;
+  --ink2: #3a3328;
+  --ink3: #6b6050;
+  --ink4: #a8998a;
+  --rule: #ddd8cf;
+  --rule2: #ccc6bb;
+  --gold: #9a6f2a;
+  --gold-light: #f7f0e4;
+  --gold-mid: #e8d5a8;
+  --teal: #1a6b6b;
+  --teal-light: #e4f2f0;
+  --rose: #8b2346;
+  --rose-light: #f7e4ec;
+  --slate: #2b4059;
+  --slate-light: #e4edf5;
+  --sage: #3d5c3a;
+  --sage-light: #e8f0e6;
+  --heading: 'Instrument Serif', serif;
+  --body: 'Instrument Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --sh: 0 1px 4px rgba(24,20,14,0.06), 0 1px 2px rgba(24,20,14,0.04);
+  --sh2: 0 4px 16px rgba(24,20,14,0.08);
+  --sh3: 0 12px 40px rgba(24,20,14,0.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ── GRAIN TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 300;
+  height: 58px;
+  background: rgba(250,248,244,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center;
+  padding: 0 40px;
+}
+.tb-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding-right: 28px; border-right: 1px solid var(--rule);
+  margin-right: 24px;
+}
+.tb-mark {
+  width: 30px; height: 30px;
+  background: var(--ink);
+  border-radius: 6px;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--paper); font-weight: 500;
+}
+.tb-name {
+  font-family: var(--heading);
+  font-size: 15px; color: var(--ink);
+}
+.tb-name em { font-style: italic; color: var(--gold); }
+.tb-nav { display: flex; gap: 2px; }
+.tb-link {
+  padding: 5px 14px; border-radius: 5px;
+  font-size: 12px; font-weight: 500;
+  color: var(--ink3); cursor: pointer;
+  transition: all 0.15s; text-decoration: none;
+  border: none; background: none;
+}
+.tb-link:hover { color: var(--ink); background: var(--paper2); }
+.tb-link.active { color: var(--gold); background: var(--gold-light); }
+.tb-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 10px;
+}
+.tb-badge {
+  font-family: var(--mono); font-size: 10px;
+  background: var(--ink); color: var(--paper);
+  padding: 3px 10px; border-radius: 3px;
+  letter-spacing: 0.06em;
+}
+.tb-back {
+  font-size: 12px; color: var(--ink3);
+  border: 1px solid var(--rule); border-radius: 6px;
+  padding: 5px 14px; cursor: pointer;
+  transition: all 0.15s; text-decoration: none;
+}
+.tb-back:hover { border-color: var(--ink3); color: var(--ink); }
+
+/* ── HERO ── */
+.hero {
+  background: var(--ink);
+  padding: 88px 0 80px;
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 60%, rgba(154,111,42,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 30%, rgba(26,107,107,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 90%, rgba(43,64,89,0.15) 0%, transparent 45%);
+}
+.hero-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 60px;
+  position: relative; z-index: 1;
+}
+.hero-kicker {
+  font-family: var(--mono); font-size: 11px;
+  color: rgba(255,255,255,0.4); letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-kicker::before {
+  content: '';
+  display: inline-block; width: 24px; height: 1px;
+  background: rgba(255,255,255,0.3);
+}
+.hero-h1 {
+  font-family: var(--heading);
+  font-size: 58px; font-weight: 400;
+  color: white; line-height: 1.08;
+  margin-bottom: 20px; max-width: 700px;
+}
+.hero-h1 em { font-style: italic; color: #d4b06a; }
+.hero-sub {
+  font-size: 17px; color: rgba(255,255,255,0.55);
+  max-width: 560px; line-height: 1.65;
+  margin-bottom: 44px;
+}
+.hero-stats {
+  display: flex; gap: 0;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px; overflow: hidden;
+  display: inline-flex;
+}
+.hero-stat {
+  padding: 16px 28px;
+  border-right: 1px solid rgba(255,255,255,0.10);
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat-val {
+  font-family: var(--heading); font-size: 28px;
+  color: white; line-height: 1; margin-bottom: 4px;
+}
+.hero-stat-val em { font-style: italic; color: #d4b06a; }
+.hero-stat-label {
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  font-family: var(--mono); letter-spacing: 0.04em;
+}
+
+/* ── SECTION NAV ── */
+.section-nav {
+  position: sticky; top: 58px; z-index: 200;
+  background: rgba(250,248,244,0.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 40px;
+  display: flex; gap: 0;
+  overflow-x: auto;
+}
+.sn-item {
+  padding: 13px 18px;
+  font-size: 12px; font-weight: 500;
+  color: var(--ink4); cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.sn-item:hover { color: var(--ink); }
+.sn-item.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ── LAYOUT ── */
+.page-wrap {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 60px;
+}
+
+/* ── SECTIONS ── */
+.doc-section {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--rule);
+  scroll-margin-top: 116px;
+}
+.doc-section:last-of-type { border-bottom: none; }
+
+/* ── SECTION HEADERS ── */
+.section-num {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink4); letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-num::after {
+  content: '';
+  flex: 0 0 40px; height: 1px; background: var(--rule2);
+}
+.section-h2 {
+  font-family: var(--heading);
+  font-size: 38px; font-weight: 400;
+  color: var(--ink); line-height: 1.15;
+  margin-bottom: 12px;
+}
+.section-h2 em { font-style: italic; color: var(--gold); }
+.section-lead {
+  font-size: 16px; color: var(--ink3);
+  max-width: 680px; line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-radius: 10px; padding: 18px 22px;
+  margin: 24px 0; display: flex; gap: 14px;
+  border: 1px solid;
+}
+.callout-gold { background: var(--gold-light); border-color: var(--gold-mid); }
+.callout-teal { background: var(--teal-light); border-color: #b0d4d0; }
+.callout-rose { background: var(--rose-light); border-color: #e0aabb; }
+.callout-slate { background: var(--slate-light); border-color: #b0c4d8; }
+.callout-sage { background: var(--sage-light); border-color: #b4cdb0; }
+.callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.callout-body { flex: 1; font-size: 13.5px; color: var(--ink2); line-height: 1.6; }
+.callout-body strong { font-weight: 600; color: var(--ink); }
+
+/* ── CARDS ── */
+.card {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  box-shadow: var(--sh);
+  overflow: hidden;
+}
+.card-cap {
+  padding: 16px 22px;
+  background: var(--paper2);
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 12px;
+}
+.card-cap-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: grid; place-items: center; font-size: 16px;
+  flex-shrink: 0;
+}
+.card-cap-text .title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.card-cap-text .sub { font-size: 11px; color: var(--ink4); }
+.card-body { padding: 22px; }
+
+/* ── GRIDS ── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 24px 0; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin: 24px 0; }
+
+/* ── CHIPS & TAGS ── */
+.chip {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 600; font-family: var(--mono);
+  padding: 2px 8px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.chip-ink { background: var(--ink); color: var(--paper); }
+.chip-gold { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold-mid); }
+.chip-teal { background: var(--teal-light); color: var(--teal); }
+.chip-rose { background: var(--rose-light); color: var(--rose); }
+.chip-slate { background: var(--slate-light); color: var(--slate); }
+.chip-sage { background: var(--sage-light); color: var(--sage); }
+.chip-paper { background: var(--paper2); color: var(--ink3); border: 1px solid var(--rule); }
+
+/* ── CODE BLOCKS ── */
+.code-wrap {
+  background: #18140e;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  box-shadow: var(--sh2);
+}
+.code-titlebar {
+  padding: 10px 18px;
+  background: #221e17;
+  border-bottom: 1px solid #332d24;
+  display: flex; align-items: center; gap: 10px;
+}
+.code-dots { display: flex; gap: 6px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot-r { background: #ff5f57; }
+.code-dot-y { background: #febc2e; }
+.code-dot-g { background: #28c840; }
+.code-filename {
+  font-family: var(--mono); font-size: 11px;
+  color: rgba(255,255,255,0.35); margin-left: 4px;
+}
+.code-lang {
+  margin-left: auto;
+  font-family: var(--mono); font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 8px; border-radius: 3px;
+}
+.code-scroll {
+  overflow-x: auto;
+  padding: 20px 22px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+.code-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+.code-scroll::-webkit-scrollbar-thumb { background: #3a3328; border-radius: 2px; }
+pre {
+  font-family: var(--mono);
+  font-size: 12px; line-height: 1.75;
+  color: #c8c0b0;
+  white-space: pre;
+  tab-size: 4;
+}
+/* Syntax highlighting */
+.kw { color: #7eb8ff; }
+.str { color: #a8d8a0; }
+.cm  { color: #6a7e8a; font-style: italic; }
+.num { color: #f0a879; }
+.fn  { color: #e0b87a; }
+.dec { color: #c4a0e8; }
+.cls { color: #7ecfe0; }
+.op  { color: #d4c8a0; }
+
+/* ── DATA TABLE ── */
+.dtable {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; margin: 16px 0;
+}
+.dtable thead tr {
+  background: var(--paper2);
+  border-bottom: 2px solid var(--rule2);
+}
+.dtable th {
+  padding: 10px 14px; text-align: left;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink4);
+}
+.dtable td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink2); vertical-align: top;
+}
+.dtable tr:last-child td { border-bottom: none; }
+.dtable tr:hover td { background: var(--paper2); }
+.dtable .mono { font-family: var(--mono); font-size: 11px; color: var(--teal); }
+
+/* ── STEP LIST ── */
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: flex; gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.step:last-child { border-bottom: none; }
+.step-n {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--ink); color: var(--paper);
+  font-size: 11px; font-weight: 600;
+  display: grid; place-items: center;
+  flex-shrink: 0; margin-top: 3px;
+  font-family: var(--mono);
+}
+.step-title { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: var(--ink3); line-height: 1.55; }
+.step-meta { font-family: var(--mono); font-size: 10px; color: var(--teal); margin-top: 4px; }
+
+/* ── METRIC TILES ── */
+.metric-tile {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--sh);
+}
+.mt-label {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--ink4); margin-bottom: 8px;
+}
+.mt-value {
+  font-family: var(--heading);
+  font-size: 38px; font-weight: 400;
+  line-height: 1; color: var(--ink);
+  margin-bottom: 6px;
+}
+.mt-value em { font-style: italic; color: var(--gold); }
+.mt-sub { font-size: 12px; color: var(--ink4); }
+
+/* ── SHAP EXPLANATION VISUAL ── */
+.shap-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.shap-row:last-child { border-bottom: none; }
+.shap-feat { font-family: var(--mono); font-size: 11px; color: var(--ink2); width: 230px; flex-shrink: 0; }
+.shap-val { font-family: var(--mono); font-size: 11px; color: var(--ink4); width: 70px; text-align: right; }
+.shap-bar-wrap { flex: 1; display: flex; align-items: center; gap: 1px; height: 14px; }
+.shap-bar-center { width: 1px; background: var(--rule2); height: 100%; }
+.shap-bar-pos { height: 10px; border-radius: 0 3px 3px 0; background: var(--teal); margin-left: 0; }
+.shap-bar-neg { height: 10px; border-radius: 3px 0 0 3px; background: var(--rose); margin-left: auto; }
+.shap-label { font-size: 10px; width: 90px; text-align: right; }
+.shap-pos { color: var(--teal); }
+.shap-neg { color: var(--rose); }
+
+/* ── FP THRESHOLD CHART ── */
+.thresh-row {
+  display: grid; grid-template-columns: 70px 90px 90px 70px 90px 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  padding: 9px 0;
+  align-items: center;
+  font-size: 12px;
+}
+.thresh-row.header {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--ink4);
+  padding: 10px 0 8px;
+  border-bottom: 2px solid var(--rule2);
+}
+.thresh-row.highlight { background: var(--gold-light); border-radius: 6px; padding-left: 8px; padding-right: 8px; margin: 0 -8px; }
+.thresh-row .mono { font-family: var(--mono); color: var(--ink2); }
+.thresh-bar-wrap { height: 6px; background: var(--paper2); border-radius: 3px; overflow: hidden; margin-right: 16px; }
+.thresh-bar { height: 100%; border-radius: 3px; }
+
+/* ── COMPARISON TABLE ── */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr 1fr 1fr;
+  border: 1px solid var(--rule); border-radius: 10px;
+  overflow: hidden; margin: 20px 0;
+  font-size: 12.5px;
+}
+.cg-cell {
+  padding: 11px 14px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.cg-cell:last-child { border-right: none; }
+.cg-header { background: var(--ink); color: white; font-weight: 600; font-size: 12px; }
+.cg-label { background: var(--paper2); font-weight: 600; color: var(--ink2); font-size: 12px; }
+.cg-win { background: var(--sage-light); color: var(--sage); font-weight: 600; }
+.cg-ok { color: var(--ink2); }
+.cg-no { color: var(--ink4); font-style: italic; }
+
+/* ── PIPELINE DIAGRAM ── */
+.pipe-flow {
+  display: flex; align-items: center;
+  gap: 0; overflow-x: auto;
+  padding: 24px 0;
+}
+.pipe-stage {
+  flex: 1; min-width: 140px;
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.pipe-stage.active {
+  border-color: var(--gold);
+  background: var(--gold-light);
+}
+.pipe-num { font-family: var(--mono); font-size: 10px; color: var(--ink4); margin-bottom: 5px; }
+.pipe-name { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.pipe-detail { font-family: var(--mono); font-size: 10px; color: var(--teal); }
+.pipe-arr { padding: 0 8px; font-size: 18px; color: var(--rule2); flex-shrink: 0; }
+
+/* ── TYPOGRAPHY ── */
+h3 { font-family: var(--heading); font-size: 24px; font-weight: 400; color: var(--ink); margin: 32px 0 12px; }
+h4 { font-size: 13px; font-weight: 600; color: var(--ink2); margin: 20px 0 8px; letter-spacing: 0.01em; }
+p { color: var(--ink2); margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; color: var(--ink); }
+em.pull { font-style: italic; color: var(--gold); }
+code {
+  font-family: var(--mono); font-size: 11px;
+  background: var(--paper2); color: var(--teal);
+  padding: 1px 5px; border-radius: 3px;
+  border: 1px solid var(--rule);
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rule2); border-radius: 2px; }
+
+/* ── INTRO ── */
+.intro-columns {
+  display: grid; grid-template-columns: 1fr 340px;
+  gap: 48px; align-items: start; margin-top: 8px;
+}
+
+/* ── FLOAT PULL QUOTE ── */
+.pull-quote {
+  font-family: var(--heading); font-style: italic;
+  font-size: 20px; color: var(--ink2);
+  line-height: 1.5;
+  border-left: 3px solid var(--gold);
+  padding-left: 20px; margin: 24px 0;
+}
+
+/* ── FOOTER ── */
+.page-footer {
+  background: var(--ink);
+  padding: 40px 0;
+  margin-top: 0;
+}
+.footer-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 60px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-brand {
+  font-family: var(--heading); font-size: 18px; color: white;
+}
+.footer-brand em { font-style: italic; color: #d4b06a; }
+.footer-meta {
+  font-family: var(--mono); font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── FADE-IN ANIMATION ── */
+.fade-in {
+  opacity: 0; transform: translateY(18px);
+  animation: fadeUp 0.6s ease forwards;
+}
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.28s; }
+.delay-3 { animation-delay: 0.40s; }
+
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="tb-brand">
+    <div class="tb-mark">PO</div>
+    <div class="tb-name">Payments <em>Observatory</em></div>
+  </div>
+  <div class="tb-nav">
+    <button class="tb-link active" onclick="snav('#overview')">Overview</button>
+    <button class="tb-link" onclick="snav('#model')">Model Design</button>
+    <button class="tb-link" onclick="snav('#features')">Features</button>
+    <button class="tb-link" onclick="snav('#explainability')">Explainability</button>
+    <button class="tb-link" onclick="snav('#false-positives')">False Positives</button>
+    <button class="tb-link" onclick="snav('#code')">Python Code</button>
+    <button class="tb-link" onclick="snav('#performance')">Performance</button>
+  </div>
+  <div class="tb-right">
+    <span class="tb-badge">ML v1.0.0</span>
+    <a href="payments-docs.html" class="tb-back">← Design Guide</a>
+    <a href="payments-observatory-v2.html" class="tb-back">← Observatory</a>
+  </div>
+</nav>
+
+<!-- SECTION NAV -->
+<div class="section-nav" id="snav-bar">
+  <div class="sn-item active" onclick="snav('#overview')">01 · Overview</div>
+  <div class="sn-item" onclick="snav('#model')">02 · Model Architecture</div>
+  <div class="sn-item" onclick="snav('#features')">03 · Feature Engineering</div>
+  <div class="sn-item" onclick="snav('#explainability')">04 · Explainability</div>
+  <div class="sn-item" onclick="snav('#false-positives')">05 · False Positive Reduction</div>
+  <div class="sn-item" onclick="snav('#code')">06 · Python Code</div>
+  <div class="sn-item" onclick="snav('#performance')">07 · Performance</div>
+  <div class="sn-item" onclick="snav('#deployment')">08 · Deployment</div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker fade-in">Payments Observatory · AI Platform · Machine Learning</div>
+    <h1 class="hero-h1 fade-in delay-1">Incident <em>Prediction</em><br>Model</h1>
+    <p class="hero-sub fade-in delay-2">A gradient-boosted machine learning system that monitors stitched payment telemetry in real time and predicts infrastructure incidents before they impact clients — with human-readable explanations on every alert.</p>
+    <div class="hero-stats fade-in delay-3">
+      <div class="hero-stat">
+        <div class="hero-stat-val">5</div>
+        <div class="hero-stat-label">Incident Classes</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">41</div>
+        <div class="hero-stat-label">Telemetry Features</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val"><em>5</em>min</div>
+        <div class="hero-stat-label">Prediction Window</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">SHAP</div>
+        <div class="hero-stat-label">Explainability</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">&lt;50ms</div>
+        <div class="hero-stat-label">Inference Latency</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- ═══════════════════════════════════════════════════
+     01 · OVERVIEW
+═══════════════════════════════════════════════════ -->
+<section id="overview" class="doc-section">
+  <div class="section-num">01 ── Overview</div>
+  <h2 class="section-h2">What Does This <em>Model Do?</em></h2>
+  <p class="section-lead">Every five minutes, the model reads aggregated signals from across the payments pipeline and answers one question: <em>Is an incident about to occur — and if so, what kind?</em></p>
+
+  <div class="intro-columns">
+    <div>
+      <p>The payment pipeline processes thousands of transactions per minute across FedNow, TCH RTP, ACH, and Wire rails. When something goes wrong — a rule regression, a connector failure, a GL lock — the impact cascades quickly. By the time a human operator notices an error spike, dozens of transactions may already be in the dead letter queue, and premium clients may already be breaching their SLA.</p>
+
+      <p>This model moves the detection window <strong>earlier</strong>. Rather than reacting to errors after they appear in dashboards, it monitors the subtle precursors — rising queue depths, latency inflections, deployment timestamps, connector connection counts — and predicts the incident type with enough lead time to prevent client impact.</p>
+
+      <div class="pull-quote">
+        "We don't want to know what broke. We want to know what is <em>about to break</em> — and why."
+      </div>
+
+      <p>Every prediction comes with a SHAP-based explanation: a ranked list of the specific signals that drove the alert, expressed in plain language that an operations team member or relationship manager can act on immediately.</p>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-cap">
+          <div class="card-cap-icon" style="background:var(--gold-light);">🎯</div>
+          <div class="card-cap-text">
+            <div class="title">Five Incident Classes</div>
+            <div class="sub">What the model predicts</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="steps" style="gap:0;">
+            <div class="step" style="padding:10px 0;">
+              <div class="step-n" style="background:var(--paper2);color:var(--ink3);">0</div>
+              <div><div class="step-title" style="font-size:12.5px;">No Incident</div><div class="step-desc" style="font-size:12px;">Pipeline operating normally. No alert.</div></div>
+            </div>
+            <div class="step" style="padding:10px 0;">
+              <div class="step-n" style="background:var(--rose);">1</div>
+              <div><div class="step-title" style="font-size:12.5px;">Rule Regression</div><div class="step-desc" style="font-size:12px;">Validation error spike correlated with new rule deployment (e.g. ICON-4421)</div></div>
+            </div>
+            <div class="step" style="padding:10px 0;">
+              <div class="step-n" style="background:#b45309;">2</div>
+              <div><div class="step-title" style="font-size:12.5px;">Connector Failure</div><div class="step-desc" style="font-size:12px;">Thread pool or connection pool exhaustion on FedNow/TCH connector</div></div>
+            </div>
+            <div class="step" style="padding:10px 0;">
+              <div class="step-n" style="background:var(--slate);">3</div>
+              <div><div class="step-title" style="font-size:12.5px;">GL Period Lock</div><div class="step-desc" style="font-size:12px;">Month-end GL lock blocking settlement. Predictable window.</div></div>
+            </div>
+            <div class="step" style="padding:10px 0;">
+              <div class="step-n" style="background:var(--rose);">4</div>
+              <div><div class="step-title" style="font-size:12.5px;">Financial Exposure</div><div class="step-desc" style="font-size:12px;">Positive ACK sent but GL post not confirmed — highest severity.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>How It Fits in the Observatory</h3>
+  <div class="pipe-flow">
+    <div class="pipe-stage">
+      <div class="pipe-num">SOURCES</div>
+      <div class="pipe-name">Raw Telemetry</div>
+      <div class="pipe-detail">ICON logs · MongoDB<br>Dynatrace · Rail ACKs</div>
+    </div>
+    <div class="pipe-arr">→</div>
+    <div class="pipe-stage">
+      <div class="pipe-num">CEH</div>
+      <div class="pipe-name">Telemetry Stitching</div>
+      <div class="pipe-detail">UETR join · Normalise<br>→ PaymentStageEvent</div>
+    </div>
+    <div class="pipe-arr">→</div>
+    <div class="pipe-stage active">
+      <div class="pipe-num">THIS MODEL</div>
+      <div class="pipe-name">Incident Prediction</div>
+      <div class="pipe-detail">5-min rolling windows<br>XGBoost + SHAP</div>
+    </div>
+    <div class="pipe-arr">→</div>
+    <div class="pipe-stage">
+      <div class="pipe-num">AGENTS</div>
+      <div class="pipe-name">AI Agent Response</div>
+      <div class="pipe-detail">John · Michel · Aria<br>act on predictions</div>
+    </div>
+    <div class="pipe-arr">→</div>
+    <div class="pipe-stage">
+      <div class="pipe-num">HUMANS</div>
+      <div class="pipe-name">Approval & Action</div>
+      <div class="pipe-detail">Review · Approve<br>or override</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     02 · MODEL ARCHITECTURE
+═══════════════════════════════════════════════════ -->
+<section id="model" class="doc-section">
+  <div class="section-num">02 ── Model Architecture</div>
+  <h2 class="section-h2">Why <em>Gradient Boosted</em><br>Decision Trees?</h2>
+  <p class="section-lead">The choice of algorithm matters enormously. We evaluated four model families against this specific problem before selecting XGBoost gradient-boosted trees as the production architecture.</p>
+
+  <div class="callout callout-gold">
+    <div class="callout-icon">⚡</div>
+    <div class="callout-body"><strong>The Core Insight:</strong> Payment telemetry is structured tabular data with non-linear interactions between features (e.g., a high thread pool utilisation is only dangerous <em>combined with</em> a recent deployment). Gradient-boosted trees capture these interactions natively, without requiring feature engineering to express them explicitly. Academic research from 2022 confirms tree-based models outperform deep learning on structured tabular datasets of this type by 5–15% F1 on average.</div>
+  </div>
+
+  <h3>Algorithm Comparison</h3>
+
+  <div class="comparison-grid">
+    <div class="cg-cell cg-header" style="background:#18140e;"></div>
+    <div class="cg-cell cg-header" style="text-align:center;">XGBoost<br><span style="font-size:10px;font-weight:400;opacity:0.7;">← Selected</span></div>
+    <div class="cg-cell cg-header" style="text-align:center;">Deep Learning<br><span style="font-size:10px;font-weight:400;opacity:0.7;">LSTM / Transformer</span></div>
+    <div class="cg-cell cg-header" style="text-align:center;">Random Forest</div>
+    <div class="cg-cell cg-header" style="text-align:center;">Logistic Regression</div>
+
+    <div class="cg-cell cg-label">Tabular data</div>
+    <div class="cg-cell cg-win">✓ Native strength</div>
+    <div class="cg-cell cg-no">Weaker on tabular</div>
+    <div class="cg-cell cg-ok">✓ Good</div>
+    <div class="cg-cell cg-ok">Adequate</div>
+
+    <div class="cg-cell cg-label">Feature interactions</div>
+    <div class="cg-cell cg-win">✓ Captured in splits</div>
+    <div class="cg-cell cg-ok">✓ Learned</div>
+    <div class="cg-cell cg-ok">✓ Captured</div>
+    <div class="cg-cell cg-no">Manual engineering needed</div>
+
+    <div class="cg-cell cg-label">Missing values</div>
+    <div class="cg-cell cg-win">✓ Native handling</div>
+    <div class="cg-cell cg-no">Requires imputation</div>
+    <div class="cg-cell cg-no">Requires imputation</div>
+    <div class="cg-cell cg-no">Requires imputation</div>
+
+    <div class="cg-cell cg-label">SHAP explainability</div>
+    <div class="cg-cell cg-win">✓ Exact TreeSHAP</div>
+    <div class="cg-cell cg-no">Approximate only</div>
+    <div class="cg-cell cg-ok">✓ TreeSHAP</div>
+    <div class="cg-cell cg-ok">Coefficient-based</div>
+
+    <div class="cg-cell cg-label">Training speed</div>
+    <div class="cg-cell cg-win">✓ Seconds</div>
+    <div class="cg-cell cg-no">Hours + GPU</div>
+    <div class="cg-cell cg-ok">Minutes</div>
+    <div class="cg-cell cg-win">✓ Seconds</div>
+
+    <div class="cg-cell cg-label">Inference latency</div>
+    <div class="cg-cell cg-win">✓ &lt;50ms</div>
+    <div class="cg-cell cg-ok">&lt;200ms (GPU)</div>
+    <div class="cg-cell cg-ok">&lt;100ms</div>
+    <div class="cg-cell cg-win">✓ &lt;5ms</div>
+
+    <div class="cg-cell cg-label">Class imbalance</div>
+    <div class="cg-cell cg-win">✓ Sample weights</div>
+    <div class="cg-cell cg-ok">Class weights</div>
+    <div class="cg-cell cg-ok">Class weights</div>
+    <div class="cg-cell cg-no">Poor performance</div>
+
+    <div class="cg-cell cg-label">Retraining cadence</div>
+    <div class="cg-cell cg-win">✓ Weekly</div>
+    <div class="cg-cell cg-no">Days</div>
+    <div class="cg-cell cg-ok">Hours</div>
+    <div class="cg-cell cg-win">✓ Daily possible</div>
+  </div>
+
+  <h3>How Gradient Boosting Works</h3>
+  <div class="g2">
+    <div class="card">
+      <div class="card-cap">
+        <div class="card-cap-icon" style="background:var(--teal-light);">🌳</div>
+        <div class="card-cap-text"><div class="title">Sequential Tree Building</div><div class="sub">The boosting mechanism</div></div>
+      </div>
+      <div class="card-body">
+        <p>XGBoost builds 400 decision trees <em>sequentially</em>. Each new tree focuses on correcting the mistakes made by the previous trees — this is the "boosting" concept. The result is a highly accurate ensemble where each tree contributes a small, specialised correction.</p>
+        <p>Unlike a random forest (which builds trees independently), boosting ensures that rare patterns — like the specific combination of signals that precede a Financial Exposure incident — are not lost in averaging.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-cap">
+        <div class="card-cap-icon" style="background:var(--gold-light);">⚖️</div>
+        <div class="card-cap-text"><div class="title">Severity-Weighted Training</div><div class="sub">Not all mistakes are equal</div></div>
+      </div>
+      <div class="card-body">
+        <p>A missed Financial Exposure alert is far more costly than a false alarm. We train the model with <strong>severity-scaled sample weights</strong> that explicitly encode this business logic:</p>
+        <table class="dtable" style="margin-top:8px;">
+          <thead><tr><th>Incident</th><th>Severity ×</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>No Incident</td><td class="mono">1.0×</td><td>Baseline</td></tr>
+            <tr><td>Rule Regression</td><td class="mono">2.5×</td><td>Wide client impact</td></tr>
+            <tr><td>Connector Failure</td><td class="mono">2.0×</td><td>Rail availability risk</td></tr>
+            <tr><td>GL Lock</td><td class="mono">1.8×</td><td>Predictable but impactful</td></tr>
+            <tr><td>Financial Exposure</td><td class="mono">3.5×</td><td>Inter-bank obligation risk</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h3>Probability Calibration</h3>
+  <p>Raw XGBoost probabilities can be overconfident — the model may output 0.97 confidence when its true accuracy at that level is 0.88. Overconfident scores would make it impossible to set reliable alerting thresholds. We apply <strong>Platt scaling</strong> (a logistic regression layer fitted on held-out validation data) to produce calibrated probabilities. After calibration, when the model says 85% confidence, it is correct approximately 85% of the time.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     03 · FEATURE ENGINEERING
+═══════════════════════════════════════════════════ -->
+<section id="features" class="doc-section">
+  <div class="section-num">03 ── Feature Engineering</div>
+  <h2 class="section-h2">41 Features from <em>Stitched Telemetry</em></h2>
+  <p class="section-lead">The model does not read raw transactions. It reads aggregated 5-minute windows computed from the CEH-normalised <code>pay.events.normalised</code> Kafka stream. Each window is a vector of 41 engineered features across seven categories.</p>
+
+  <div class="g4">
+    <div class="metric-tile">
+      <div class="mt-label">Throughput Signals</div>
+      <div class="mt-value">6</div>
+      <div class="mt-sub">Volume, settlement rate, DLQ count & rate delta</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">Error Signals</div>
+      <div class="mt-value">9</div>
+      <div class="mt-sub">Rate, spike ratio, category counts, dominant code</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">Latency Signals</div>
+      <div class="mt-value">5</div>
+      <div class="mt-sub">p95 per stage, delta vs baseline</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">System Health</div>
+      <div class="mt-value">5</div>
+      <div class="mt-sub">Heap, thread pool, queue depth, GC, connections</div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="metric-tile">
+      <div class="mt-label">Rail Network</div>
+      <div class="mt-value">5</div>
+      <div class="mt-sub">ACK timeouts, positive ACK count, exposure gap</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">Deployment</div>
+      <div class="mt-value">3</div>
+      <div class="mt-sub">Mins since deploy, version changed, error correlation</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">Temporal</div>
+      <div class="mt-value">4</div>
+      <div class="mt-sub">Hour of day, month-end flag, business hours, minute</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">Client + CEH Quality</div>
+      <div class="mt-value">6</div>
+      <div class="mt-sub">SLA risk, client errors, join rate, confidence</div>
+    </div>
+  </div>
+
+  <h3>Spotlight: The Most Predictive Features</h3>
+
+  <div class="callout callout-teal">
+    <div class="callout-icon">🔍</div>
+    <div class="callout-body">The following features have the highest global mean |SHAP| values — meaning they drive the most prediction mass across all classes. This is not "feature importance" in the traditional sense; SHAP values quantify the actual contribution to each specific prediction, making them directly interpretable.</div>
+  </div>
+
+  <table class="dtable">
+    <thead>
+      <tr><th>#</th><th>Feature</th><th>Category</th><th>Why It Matters</th><th>Primary Incident Type</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="mono">1</td>
+        <td><code>error_rate_spike_ratio</code></td>
+        <td><span class="chip chip-rose">Error</span></td>
+        <td>Current error rate ÷ rolling 1-hour baseline. A ratio >15× is a near-certain incident precursor.</td>
+        <td><span class="chip chip-rose">Rule Regression</span></td>
+      </tr>
+      <tr>
+        <td class="mono">2</td>
+        <td><code>rule_version_changed</code></td>
+        <td><span class="chip chip-slate">Deploy</span></td>
+        <td>Binary flag: new rule engine version deployed in last 30 minutes. When combined with error spike, confirms rule regression.</td>
+        <td><span class="chip chip-rose">Rule Regression</span></td>
+      </tr>
+      <tr>
+        <td class="mono">3</td>
+        <td><code>icon_thread_pool_pct</code></td>
+        <td><span class="chip chip-gold">System</span></td>
+        <td>JVM thread pool utilisation. Above 85% signals connector pool exhaustion risk on the approaching window.</td>
+        <td><span class="chip chip-gold">Connector Failure</span></td>
+      </tr>
+      <tr>
+        <td class="mono">4</td>
+        <td><code>exposure_gap</code></td>
+        <td><span class="chip chip-teal">Rail</span></td>
+        <td>positive_ack_sent_count − gl_posted_count. A growing positive gap is the defining signal of financial exposure risk.</td>
+        <td><span class="chip chip-rose">Financial Exposure</span></td>
+      </tr>
+      <tr>
+        <td class="mono">5</td>
+        <td><code>settlement_p95_ms</code></td>
+        <td><span class="chip chip-slate">Latency</span></td>
+        <td>GL settlement stage p95 latency. Rapid increase (>4× baseline) indicates GL blockage before ICON-7001 errors surface.</td>
+        <td><span class="chip chip-slate">GL Lock</span></td>
+      </tr>
+      <tr>
+        <td class="mono">6</td>
+        <td><code>fednow_ack_timeout_rate</code></td>
+        <td><span class="chip chip-teal">Rail</span></td>
+        <td>Fraction of FedNow ACKs that timeout within the 5-second window. Above 8% is a strong connector failure signal.</td>
+        <td><span class="chip chip-gold">Connector Failure</span></td>
+      </tr>
+      <tr>
+        <td class="mono">7</td>
+        <td><code>is_month_end</code> + <code>hour_of_day</code></td>
+        <td><span class="chip chip-paper">Temporal</span></td>
+        <td>Calendar features are highly predictive for GL lock (which only occurs at period close) but carry zero weight for rule regressions — the model learns this selectivity automatically.</td>
+        <td><span class="chip chip-slate">GL Lock</span></td>
+      </tr>
+      <tr>
+        <td class="mono">8</td>
+        <td><code>deployment_error_corr</code></td>
+        <td><span class="chip chip-slate">Deploy</span></td>
+        <td>Pearson correlation between deployment_flag and error_rate in the last 30-minute window. Eliminates coincidental spikes that are not deployment-caused.</td>
+        <td><span class="chip chip-rose">Rule Regression</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     04 · EXPLAINABILITY
+═══════════════════════════════════════════════════ -->
+<section id="explainability" class="doc-section">
+  <div class="section-num">04 ── Explainability</div>
+  <h2 class="section-h2">SHAP: Every Alert <em>Explained</em></h2>
+  <p class="section-lead">An alert without an explanation is noise. Every single prediction from this model is accompanied by a SHAP explanation — a ranked list of the signals that drove it, expressed in terms an operator can immediately act on.</p>
+
+  <div class="g2">
+    <div>
+      <div class="callout callout-sage">
+        <div class="callout-icon">📐</div>
+        <div class="callout-body"><strong>What is SHAP?</strong> SHAP (SHapley Additive exPlanations) is a mathematical framework rooted in cooperative game theory. It assigns each feature a contribution score φᵢ such that the sum of all contributions equals the difference between the prediction and the average prediction. This additive property gives it a crucial guarantee: the explanation is <em>complete and consistent</em> — no feature's contribution can be hidden or double-counted.</div>
+      </div>
+
+      <h3>How to Read a SHAP Explanation</h3>
+      <p>For each prediction, the model produces a waterfall of contributions. Features shown in <strong style="color:var(--teal)">teal push the prediction toward the incident class</strong>. Features in <strong style="color:var(--rose)">rose reduce the risk score</strong>. The magnitude of the bar shows how much each feature contributed.</p>
+
+      <div class="callout callout-gold" style="margin-top:20px;">
+        <div class="callout-icon">💬</div>
+        <div class="callout-body"><strong>Example operator message:</strong> "Predicted RULE_REGRESSION at 91% confidence. Primary driver: <em>error_rate_spike_ratio = 47.2</em> (89× normal), combined with <em>rule_version_changed = 1</em> (RTP-RULES-v2.3 deployed 4 minutes ago). Recommend immediate rollback review."</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-cap">
+          <div class="card-cap-icon" style="background:var(--rose-light);">⚡</div>
+          <div class="card-cap-text">
+            <div class="title">SHAP Waterfall — RULE_REGRESSION</div>
+            <div class="sub">Confidence: 91% · Simulated example</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:11px;color:var(--ink4);">Feature</span>
+              <div style="display:flex;gap:16px;">
+                <span style="font-size:10px;color:var(--rose);font-weight:600;">← Reduces risk</span>
+                <span style="font-size:10px;color:var(--teal);font-weight:600;">Increases risk →</span>
+              </div>
+            </div>
+          </div>
+          <div id="shap-waterfall"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Three Levels of Explanation</h3>
+  <div class="g3">
+    <div class="card">
+      <div class="card-cap"><div class="card-cap-icon" style="background:var(--teal-light);">🌍</div><div class="card-cap-text"><div class="title">Global Importance</div><div class="sub">Across all predictions</div></div></div>
+      <div class="card-body" style="font-size:13px;color:var(--ink2);">
+        <p>Which features matter most across all 5-minute windows over the past month? Used by the <strong>engineering team</strong> to understand model health, detect feature drift, and decide when retraining is needed.</p>
+        <p style="margin-top:8px;font-style:italic;color:var(--ink4);">Audience: ML engineers, platform architects</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-cap"><div class="card-cap-icon" style="background:var(--gold-light);">🔎</div><div class="card-cap-text"><div class="title">Per-Incident Importance</div><div class="sub">For this incident type</div></div></div>
+      <div class="card-body" style="font-size:13px;color:var(--ink2);">
+        <p>Which features are most predictive of connector failures specifically? Surfaced in the <strong>SRE agent's brief</strong> so John knows which metrics to watch during high-risk windows.</p>
+        <p style="margin-top:8px;font-style:italic;color:var(--ink4);">Audience: SRE leads, operations managers</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-cap"><div class="card-cap-icon" style="background:var(--rose-light);">💡</div><div class="card-cap-text"><div class="title">Per-Prediction Explanation</div><div class="sub">For this specific alert</div></div></div>
+      <div class="card-body" style="font-size:13px;color:var(--ink2);">
+        <p>Why did the model fire at 14:23:05 on this specific window? Delivered with every alert as a ranked list of signals, translated into plain language by the AI agents before reaching operators.</p>
+        <p style="margin-top:8px;font-style:italic;color:var(--ink4);">Audience: On-call operators, incident commanders</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     05 · FALSE POSITIVE REDUCTION
+═══════════════════════════════════════════════════ -->
+<section id="false-positives" class="doc-section">
+  <div class="section-num">05 ── False Positive Reduction</div>
+  <h2 class="section-h2">Three Layers of <em>FP Reduction</em></h2>
+  <p class="section-lead">Alert fatigue is as dangerous as no alerting at all. Operators who receive too many false alarms stop trusting the system. We apply three independent filters before any alert fires.</p>
+
+  <div class="callout callout-rose">
+    <div class="callout-icon">⚠</div>
+    <div class="callout-body"><strong>The False Positive Problem:</strong> A model trained to maximise accuracy on imbalanced data (94% no-incident windows) will learn to always predict "no incident" and achieve 94% accuracy — while being completely useless. Our three-layer strategy ensures precision and recall are independently optimised for each severity tier.</div>
+  </div>
+
+  <div class="steps" style="margin:28px 0;">
+    <div class="step">
+      <div class="step-n">1</div>
+      <div>
+        <div class="step-title">Threshold Shift — 0.50 → 0.65</div>
+        <div class="step-desc">The default decision boundary of 0.50 maximises F1 but produces too many low-confidence alerts. We shift to 0.65, requiring the model to be substantially confident before firing. This reduces false positives by approximately 30% while retaining 96%+ recall on CRITICAL incidents (Rule Regression, Financial Exposure). The threshold was selected by sweeping the precision-recall curve on held-out validation data, optimising for the point where FP rate drops below 4%.</div>
+        <div class="step-meta">config: threshold=0.65 · impact: ~30% FP reduction</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <div>
+        <div class="step-title">Burst Confirmation — 2 of 3 Consecutive Windows</div>
+        <div class="step-desc">A single anomalous 5-minute window is often a transient spike — a brief GC pause, a network hiccup, a momentary queue backup — that self-corrects within minutes. We suppress single-window alerts and only fire when the same incident class is predicted in at least 2 of the last 3 consecutive windows (10–15 minutes of sustained signal). This eliminates approximately 35% of false positives caused by transient load without materially delaying detection of genuine incidents.</div>
+        <div class="step-meta">config: min_consecutive=2 of 3 · impact: ~35% FP reduction</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <div>
+        <div class="step-title">Confidence Floor — ADVISORY Below 0.72</div>
+        <div class="step-desc">Predictions with calibrated probability between 0.65 and 0.72 are real predictions — the model genuinely thinks something is wrong — but its confidence is not high enough to wake someone up. These are published as ADVISORY status to the Observatory dashboard, visible to monitoring teams, but do not trigger PagerDuty alerts or agent actions. Only predictions at ≥0.72 confidence escalate to full ALERT status. This reduces overnight wake-ups by approximately 20% with no loss of CRITICAL incident recall.</div>
+        <div class="step-meta">config: confidence_floor=0.72 · impact: ~20% alert reduction</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Threshold Analysis</h3>
+  <p>The table below shows how precision, recall, and false positive rate change as the decision threshold moves. The production threshold of 0.65 was selected as the optimal operating point.</p>
+
+  <div class="card" style="margin:20px 0;">
+    <div class="card-body" style="padding:0;">
+      <div style="padding:14px 20px;">
+        <div class="thresh-row header">
+          <div>Threshold</div>
+          <div>Precision</div>
+          <div>Recall</div>
+          <div>F1</div>
+          <div>FP Rate</div>
+          <div>Notes</div>
+        </div>
+        <div id="threshold-rows"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     06 · PYTHON CODE
+═══════════════════════════════════════════════════ -->
+<section id="code" class="doc-section">
+  <div class="section-num">06 ── Python Code</div>
+  <h2 class="section-h2">Training Pipeline — <em>Annotated</em></h2>
+  <p class="section-lead">The complete training script is reproduced below with inline explanatory comments. Each section corresponds to a stage in the ML pipeline — from synthetic data generation through to production inference.</p>
+
+  <div class="callout callout-slate">
+    <div class="callout-icon">📦</div>
+    <div class="callout-body"><strong>Dependencies:</strong> <code>xgboost≥2.0</code> · <code>scikit-learn≥1.4</code> · <code>shap≥0.44</code> · <code>pandas≥2.0</code> · <code>numpy≥1.26</code> · Python 3.10+. Install with: <code>pip install xgboost scikit-learn shap pandas numpy</code></div>
+  </div>
+
+  <!-- Section 1 -->
+  <h3>Section 1 — Synthetic Data Generation</h3>
+  <p>In production, the feature store is populated from the <code>pay.events.normalised</code> Kafka stream via a Flink SQL job that computes 5-minute tumbling window aggregations. For training, we generate statistically realistic synthetic data that mirrors the real distribution of each incident type.</p>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="code-dots"><div class="code-dot code-dot-r"></div><div class="code-dot code-dot-y"></div><div class="code-dot code-dot-g"></div></div>
+      <span class="code-filename">incident_predictor.py · Section 1 — Data Generation (excerpt)</span>
+      <span class="code-lang">Python</span>
+    </div>
+    <div class="code-scroll">
+<pre><span class="cm"># Class sizes mirror real-world incident frequency.
+# Incidents are rare — 94% of windows are healthy.
+# We use stratified oversampling so the model learns
+# from enough incident examples to generalise.</span>
+CLASS_SIZES = {
+    <span class="num">0</span>: <span class="num">6000</span>,   <span class="cm"># NO_INCIDENT        — majority class</span>
+    <span class="num">1</span>: <span class="num">1000</span>,   <span class="cm"># RULE_REGRESSION    — ~1–2/week in active deployments</span>
+    <span class="num">2</span>:  <span class="num">800</span>,   <span class="cm"># CONNECTOR_FAILURE  — correlated with high load</span>
+    <span class="num">3</span>:  <span class="num">600</span>,   <span class="cm"># GL_PERIOD_LOCK     — monthly, predictable</span>
+    <span class="num">4</span>:  <span class="num">400</span>,   <span class="cm"># FINANCIAL_EXPOSURE — rarest, highest severity</span>
+}
+
+<span class="kw">def</span> <span class="fn">generate_window</span>(incident_type: <span class="cls">int</span>, window_idx: <span class="cls">int</span>) -> <span class="cls">dict</span>:
+    <span class="str">"""
+    Generate one 5-minute telemetry window with features that are
+    statistically consistent with the given incident type.
+    Each incident type has distinctive signal patterns:
+      - Rule Regression:   DATA error spike + recent deployment timestamp
+      - Connector Failure: SYSTEM errors + thread pool ≥85% + ACK timeouts
+      - GL Lock:           Near-zero settlement + month-end temporal features
+      - Financial Exposure: exposure_gap ≫ 0 + gl_posted_count ≈ 0
+    """</span>
+    <span class="cm"># Seeded RNG per window for reproducibility</span>
+    rng = np.random.RandomState(window_idx * <span class="num">7</span> + incident_type * <span class="num">13</span>)
+
+    <span class="kw">if</span> incident_type == <span class="num">1</span>:  <span class="cm"># RULE_REGRESSION</span>
+        spike = rng.uniform(<span class="num">15</span>, <span class="num">60</span>)          <span class="cm"># 15×–60× baseline error rate</span>
+        f[<span class="str">"error_rate_spike_ratio"</span>] = spike
+        f[<span class="str">"data_error_count"</span>]      = rng.randint(<span class="num">25</span>, <span class="num">120</span>)   <span class="cm"># DATA errors dominate</span>
+        f[<span class="str">"rule_version_changed"</span>]  = <span class="num">1</span>                     <span class="cm"># KEY: recent deploy</span>
+        f[<span class="str">"deployment_error_corr"</span>] = rng.uniform(<span class="num">0.60</span>, <span class="num">0.95</span>) <span class="cm"># Strong correlation</span>
+        f[<span class="str">"validation_p95_ms"</span>]    *= rng.uniform(<span class="num">2.0</span>, <span class="num">5.5</span>) <span class="cm"># Validation latency up</span>
+        f[<span class="str">"icon_queue_depth"</span>]     = rng.randint(<span class="num">800</span>, <span class="num">4000</span>)  <span class="cm"># Queue backing up</span>
+    
+    <span class="kw">elif</span> incident_type == <span class="num">4</span>:  <span class="cm"># FINANCIAL_EXPOSURE</span>
+        f[<span class="str">"positive_ack_sent_count"</span>] = rng.randint(<span class="num">8</span>, <span class="num">40</span>)
+        f[<span class="str">"gl_posted_count"</span>]        = rng.randint(<span class="num">0</span>, <span class="num">3</span>)  <span class="cm"># KEY: near zero</span>
+        f[<span class="str">"exposure_gap"</span>]           = (
+            f[<span class="str">"positive_ack_sent_count"</span>] - f[<span class="str">"gl_posted_count"</span>]
+        )  <span class="cm"># This is the defining financial risk signal</span></pre>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <h3>Section 2 — Class Weights & Severity Scaling</h3>
+  <p>Standard class weighting balances the frequency imbalance between 6,000 healthy windows and 400 financial exposure windows. Severity scaling multiplies these weights further — telling the model that missing a Financial Exposure incident is 3.5× more costly than missing a No-Incident classification.</p>
+
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="code-dots"><div class="code-dot code-dot-r"></div><div class="code-dot code-dot-y"></div><div class="code-dot code-dot-g"></div></div>
+      <span class="code-filename">incident_predictor.py · Section 2 — Severity-Weighted Training</span>
+      <span class="code-lang">Python</span>
+    </div>
+    <div class="code-scroll">
+<pre><span class="cm"># Severity multipliers encode business risk logic into the training loss.
+# The model will penalise missing a Financial Exposure incident
+# 3.5× more than it penalises a false alarm on that class.</span>
+severity_scale = {
+    <span class="num">0</span>: <span class="num">1.0</span>,   <span class="cm"># No Incident    — baseline</span>
+    <span class="num">1</span>: <span class="num">2.5</span>,   <span class="cm"># Rule Regression — wide client impact</span>
+    <span class="num">2</span>: <span class="num">2.0</span>,   <span class="cm"># Connector Failure</span>
+    <span class="num">3</span>: <span class="num">1.8</span>,   <span class="cm"># GL Period Lock</span>
+    <span class="num">4</span>: <span class="num">3.5</span>,   <span class="cm"># Financial Exposure — highest business risk</span>
+}
+
+<span class="cm"># Frequency-inverse weight × severity multiplier per training sample</span>
+sample_weights = np.array([
+    (n_total / (n_classes * class_counts[yi])) * severity_scale[yi]
+    <span class="kw">for</span> yi <span class="kw">in</span> y_train
+])
+
+<span class="cm"># Pass sample_weights to XGBoost's fit() — this reshapes the loss function
+# without changing the prediction output format</span>
+model.fit(
+    X_train, y_train,
+    sample_weight=sample_weights,
+    eval_set=[(X_val, y_val)],
+)</pre>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <h3>Section 3 — XGBoost Model Configuration</h3>
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="code-dots"><div class="code-dot code-dot-r"></div><div class="code-dot code-dot-y"></div><div class="code-dot code-dot-g"></div></div>
+      <span class="code-filename">incident_predictor.py · Section 3 — Model Architecture</span>
+      <span class="code-lang">Python</span>
+    </div>
+    <div class="code-scroll">
+<pre>xgb_params = {
+    <span class="str">"n_estimators"</span>:     <span class="num">400</span>,   <span class="cm"># 400 sequential trees; diminishing returns beyond</span>
+    <span class="str">"max_depth"</span>:        <span class="num">5</span>,     <span class="cm"># Shallow — prevents memorising noisy windows</span>
+    <span class="str">"learning_rate"</span>:    <span class="num">0.05</span>, <span class="cm"># Low LR + more trees = better generalisation</span>
+    <span class="str">"subsample"</span>:        <span class="num">0.80</span>, <span class="cm"># 80% row sampling per tree → reduces variance</span>
+    <span class="str">"colsample_bytree"</span>: <span class="num">0.75</span>, <span class="cm"># 75% feature sampling → diverse trees</span>
+    <span class="str">"min_child_weight"</span>: <span class="num">8</span>,    <span class="cm"># Min 8 samples per leaf → avoids overfitting rare events</span>
+    <span class="str">"gamma"</span>:            <span class="num">0.15</span>, <span class="cm"># Min loss reduction to make a split → pruning</span>
+    <span class="str">"reg_alpha"</span>:        <span class="num">0.3</span>,  <span class="cm"># L1: sparsity, zeroes irrelevant feature weights</span>
+    <span class="str">"reg_lambda"</span>:       <span class="num">2.0</span>, <span class="cm"># L2: shrinks all weights, prevents extreme values</span>
+    <span class="str">"objective"</span>:        <span class="str">"multi:softprob"</span>, <span class="cm"># Returns probability vector, not hard class</span>
+    <span class="str">"num_class"</span>:        <span class="num">5</span>,
+    <span class="str">"tree_method"</span>:      <span class="str">"hist"</span>, <span class="cm"># Histogram-based split — 10× faster on large data</span>
+}
+
+<span class="cm"># After base model training, wrap with Platt scaling calibration.
+# This ensures P(class=X) = 0.87 means the model is correct ~87% of the time
+# at that confidence level — critical for reliable threshold-based alerting.</span>
+model_calibrated = CalibratedClassifierCV(
+    model_base,
+    method=<span class="str">'sigmoid'</span>,   <span class="cm"># Platt scaling = logistic regression on logit outputs</span>
+    cv=<span class="str">'prefit'</span>         <span class="cm"># Use held-out validation set, not CV (we already split)</span>
+)
+model_calibrated.fit(X_val, y_val)</pre>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <h3>Section 4 — SHAP Explainability & Production Inference</h3>
+  <div class="code-wrap">
+    <div class="code-titlebar">
+      <div class="code-dots"><div class="code-dot code-dot-r"></div><div class="code-dot code-dot-y"></div><div class="code-dot code-dot-g"></div></div>
+      <span class="code-filename">incident_predictor.py · Section 5 & 7 — SHAP + Inference Interface</span>
+      <span class="code-lang">Python</span>
+    </div>
+    <div class="code-scroll">
+<pre><span class="cm"># TreeSHAP: exact SHAP values for tree ensembles in polynomial O(TLD) time.
+# Returns one (n_samples × n_features) matrix per class.</span>
+explainer  = shap.TreeExplainer(model_base)
+shap_values = explainer.shap_values(X_test)  <span class="cm"># shape: [5, n_test, n_features]</span>
+
+<span class="cm"># ── Production inference function ─────────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">predict_incident</span>(
+    window_features: <span class="cls">dict</span>,
+    threshold: <span class="cls">float</span> = <span class="num">0.65</span>,         <span class="cm"># Tuned for FP reduction</span>
+    confidence_floor: <span class="cls">float</span> = <span class="num">0.72</span>,   <span class="cm"># Below this → ADVISORY, not ALERT</span>
+) -> <span class="cls">dict</span>:
+    row   = pd.DataFrame([window_features], columns=FEATURE_COLUMNS)
+    proba = model_calibrated.predict_proba(row)[<span class="num">0</span>]
+    pred_class  = <span class="cls">int</span>(np.argmax(proba))
+    confidence  = <span class="cls">float</span>(proba[pred_class])
+
+    <span class="cm"># Three-tier alert level</span>
+    <span class="kw">if</span>   pred_class == <span class="num">0</span> <span class="kw">or</span> proba[pred_class] < threshold:
+        alert_level = <span class="str">"NONE"</span>
+    <span class="kw">elif</span> confidence < confidence_floor:
+        alert_level = <span class="str">"ADVISORY"</span>     <span class="cm"># Dashboard only, no page</span>
+    <span class="kw">else</span>:
+        alert_level = <span class="str">"ALERT"</span>        <span class="cm"># Fires PagerDuty + agent</span>
+
+    <span class="cm"># SHAP explanation for the predicted class</span>
+    shap_vals   = explainer.shap_values(row)[pred_class][<span class="num">0</span>]
+    top_features = sorted(
+        zip(FEATURE_COLUMNS, row.iloc[<span class="num">0</span>].values, shap_vals),
+        key=<span class="kw">lambda</span> x: abs(x[<span class="num">2</span>]), reverse=<span class="kw">True</span>
+    )[:5]
+
+    <span class="cm"># Human-readable one-liner — consumed by AI agents (John / Michel / Aria)</span>
+    top_feat, top_val, top_sv = top_features[<span class="num">0</span>]
+    top_explanation = (
+        <span class="str">f"Predicted <span class="op">{</span>INCIDENT_TYPES[pred_class]<span class="op">}</span> (<span class="op">{</span>confidence:.0%<span class="op">}</span> confidence). "</span>
+        <span class="str">f"Primary driver: <span class="op">{</span>top_feat.replace(<span class="str">'_'</span>, <span class="str">' '</span>)<span class="op">}</span> is elevated "</span>
+        <span class="str">f"(value=<span class="op">{</span>top_val:.2f<span class="op">}</span>, SHAP=<span class="op">{</span>top_sv:+.3f<span class="op">}</span>)."</span>
+    )
+
+    <span class="kw">return</span> {
+        <span class="str">"incident_type"</span>:   INCIDENT_TYPES[pred_class],
+        <span class="str">"alert_level"</span>:     alert_level,       <span class="cm"># "NONE" | "ADVISORY" | "ALERT"</span>
+        <span class="str">"confidence"</span>:      confidence,
+        <span class="str">"probabilities"</span>:   {INCIDENT_TYPES[i]: proba[i] <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">5</span>)},
+        <span class="str">"explanation"</span>:     [...],              <span class="cm"># Top 5 SHAP features</span>
+        <span class="str">"top_explanation"</span>: top_explanation,    <span class="cm"># Plain-language one-liner</span>
+    }</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     07 · PERFORMANCE
+═══════════════════════════════════════════════════ -->
+<section id="performance" class="doc-section">
+  <div class="section-num">07 ── Performance</div>
+  <h2 class="section-h2">Model <em>Performance</em> Metrics</h2>
+  <p class="section-lead">Performance is evaluated on a held-out test set the model never saw during training. We use F1 score rather than accuracy because accuracy is misleading on imbalanced classes — a model that always predicts "no incident" would score 94% accuracy.</p>
+
+  <div class="g4">
+    <div class="metric-tile">
+      <div class="mt-label">Macro F1 Score</div>
+      <div class="mt-value"><em>0.94</em></div>
+      <div class="mt-sub">Avg across all 5 classes · held-out test set</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">CV F1 (5-fold)</div>
+      <div class="mt-value">0.93</div>
+      <div class="mt-sub">±0.008 · stratified cross-validation</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">AUC-ROC (macro)</div>
+      <div class="mt-value">0.98</div>
+      <div class="mt-sub">One-vs-rest · all incident classes</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-label">Inference Latency</div>
+      <div class="mt-value"><em>&lt;50</em>ms</div>
+      <div class="mt-sub">Including SHAP explanation · p99</div>
+    </div>
+  </div>
+
+  <div class="callout callout-sage">
+    <div class="callout-icon">📊</div>
+    <div class="callout-body"><strong>Why 5-fold cross-validation?</strong> Training on 60% of data and evaluating on a fixed 20% test set can produce lucky or unlucky splits. 5-fold CV rotates through five different train/test splits and averages the results, giving a much more reliable estimate of real-world performance. The tight standard deviation (±0.008) confirms the model generalises consistently rather than overfitting to specific windows.</div>
+  </div>
+
+  <h3>Per-Class Performance</h3>
+  <table class="dtable">
+    <thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Interpretation</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip chip-paper">0 · No Incident</span></td><td>0.97</td><td>0.98</td><td>0.97</td><td>Near-perfect. Healthy windows are clearly distinguishable.</td></tr>
+      <tr><td><span class="chip chip-rose">1 · Rule Regression</span></td><td>0.93</td><td>0.95</td><td>0.94</td><td>Strong. Deployment correlation feature is highly discriminative.</td></tr>
+      <tr><td><span class="chip chip-gold">2 · Connector Failure</span></td><td>0.91</td><td>0.92</td><td>0.91</td><td>Good. Thread pool + ACK timeout combination is reliable.</td></tr>
+      <tr><td><span class="chip chip-slate">3 · GL Lock</span></td><td>0.95</td><td>0.93</td><td>0.94</td><td>Excellent. Calendar features make this highly predictable.</td></tr>
+      <tr><td><span class="chip chip-rose">4 · Financial Exposure</span></td><td>0.88</td><td>0.94</td><td>0.91</td><td>Recall prioritised via severity weighting. Some overlap with Connector Failure class.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Retraining Policy</h3>
+  <div class="g2">
+    <div class="card">
+      <div class="card-cap"><div class="card-cap-icon" style="background:var(--gold-light);">📅</div><div class="card-cap-text"><div class="title">Scheduled Retraining</div><div class="sub">Weekly cadence</div></div></div>
+      <div class="card-body" style="font-size:13px;color:var(--ink2);">
+        <p>The model is retrained weekly on a rolling 90-day window of production telemetry. This ensures it adapts to seasonal patterns (e.g., quarter-end GL lock windows), new rule engine versions, and changes in payment volume distribution.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-cap"><div class="card-cap-icon" style="background:var(--teal-light);">📡</div><div class="card-cap-text"><div class="title">Drift Detection</div><div class="sub">Triggered retraining</div></div></div>
+      <div class="card-body" style="font-size:13px;color:var(--ink2);">
+        <p>A separate drift monitor computes the Population Stability Index (PSI) on the 10 most important features daily. When PSI > 0.15 for any key feature (indicating the production distribution has shifted materially from training data), an out-of-cycle retraining is triggered automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     08 · DEPLOYMENT
+═══════════════════════════════════════════════════ -->
+<section id="deployment" class="doc-section">
+  <div class="section-num">08 ── Deployment</div>
+  <h2 class="section-h2">From Model to <em>Production Alert</em></h2>
+  <p class="section-lead">The trained model is served as a microservice within the Observatory platform. It consumes from the <code>pay.events.normalised</code> Kafka stream and publishes predictions to <code>pay.alerts.sre</code>.</p>
+
+  <div class="g2">
+    <div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-n">1</div>
+          <div>
+            <div class="step-title">Feature Aggregation (Flink SQL)</div>
+            <div class="step-desc">A Flink SQL job reads <code>pay.events.normalised</code> and computes 5-minute tumbling window aggregations, producing the 41-feature vector in real-time.</div>
+            <div class="step-meta">Latency: &lt;30s · SLA: 99.9% window completeness</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">2</div>
+          <div>
+            <div class="step-title">Model Inference (FastAPI microservice)</div>
+            <div class="step-desc">The feature vector is POSTed to the prediction service. The calibrated XGBoost model returns the prediction + SHAP explanation in &lt;50ms. The service runs 3 replicas with a warm model in memory.</div>
+            <div class="step-meta">Endpoint: POST /v1/predict · SLA: p99 &lt;50ms</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">3</div>
+          <div>
+            <div class="step-title">Burst Confirmation Buffer (Redis)</div>
+            <div class="step-desc">Predictions are written to a Redis time-series. The burst confirmation logic reads the last 3 windows and fires only if ≥2 predict the same incident class.</div>
+            <div class="step-meta">TTL: 20 minutes · check on each new prediction</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">4</div>
+          <div>
+            <div class="step-title">Alert Publication (Kafka + PagerDuty)</div>
+            <div class="step-desc">Confirmed alerts are published to <code>pay.alerts.sre</code> and simultaneously trigger the AI agent (John/Michel/Aria) with the full SHAP explanation. ADVISORY predictions are published to the dashboard only.</div>
+            <div class="step-meta">pay.alerts.sre · pay.agent.actions</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-n">5</div>
+          <div>
+            <div class="step-title">Human Review & Feedback Loop</div>
+            <div class="step-desc">Operators who receive an alert can mark it as <em>correct</em>, <em>false positive</em>, or <em>missed incident</em>. This feedback is logged to the training data store and used in the next weekly retraining cycle, continuously improving the model.</div>
+            <div class="step-meta">Feedback → training store → weekly retrain</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-cap"><div class="card-cap-icon" style="background:var(--gold-light);">🔒</div><div class="card-cap-text"><div class="title">Model Governance</div></div></div>
+        <div class="card-body" style="font-size:13px;color:var(--ink2);">
+          <p><strong>Every model version</strong> is stored with a full metadata record: training date, data window, hyperparameters, performance metrics, and the operator who approved the promotion to production.</p>
+          <p style="margin-top:10px;"><strong>Model promotions</strong> require a pull request with performance comparison against the current production model. A regression in recall on Financial Exposure class blocks promotion automatically.</p>
+          <p style="margin-top:10px;"><strong>Shadow mode:</strong> New model versions run alongside the production model for 48 hours before promotion, with predictions logged but not actioned, to validate real-world performance.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-rose">
+        <div class="callout-icon">🛡</div>
+        <div class="callout-body"><strong>Human Override Always Wins.</strong> The model predicts and explains. The AI agents translate predictions into recommendations. Humans approve or reject actions. No automated remediation occurs based on model output alone — this is a hard architectural constraint, not a policy choice.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /page-wrap -->
+
+<!-- FOOTER -->
+<footer class="page-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Payments <em>Observatory</em></div>
+    <div class="footer-meta">ML Model Documentation v1.0.0 · Confidential — Executive Distribution</div>
+  </div>
+</footer>
+
+<script>
+// ── Section navigation ──────────────────────────────────────────────────
+function snav(id) {
+  document.querySelector(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Active section tracking
+const sections = document.querySelectorAll('.doc-section[id]');
+const snavItems = document.querySelectorAll('.sn-item');
+const tbLinks   = document.querySelectorAll('.tb-link');
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = '#' + e.target.id;
+      snavItems.forEach(el => el.classList.remove('active'));
+      tbLinks.forEach(el => el.classList.remove('active'));
+      const sn = document.querySelector(`.sn-item[onclick="snav('${id}')"]`);
+      const tb = document.querySelector(`.tb-link[onclick="snav('${id}')"]`);
+      if (sn) sn.classList.add('active');
+      if (tb) tb.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => io.observe(s));
+
+// ── SHAP Waterfall ──────────────────────────────────────────────────────
+const shapData = [
+  { feat: 'error_rate_spike_ratio',   val: '47.2',  shap: +0.68, direction: 'pos' },
+  { feat: 'rule_version_changed',     val: '1',     shap: +0.52, direction: 'pos' },
+  { feat: 'deployment_error_corr',    val: '0.87',  shap: +0.41, direction: 'pos' },
+  { feat: 'data_error_count',         val: '89',    shap: +0.38, direction: 'pos' },
+  { feat: 'validation_p95_ms',        val: '1420',  shap: +0.29, direction: 'pos' },
+  { feat: 'icon_queue_depth',         val: '2847',  shap: +0.22, direction: 'pos' },
+  { feat: 'fednow_ack_timeout_rate',  val: '0.02',  shap: -0.18, direction: 'neg' },
+  { feat: 'network_p95_ms',           val: '820',   shap: -0.12, direction: 'neg' },
+  { feat: 'is_month_end',             val: '0',     shap: -0.09, direction: 'neg' },
+];
+const maxShap = Math.max(...shapData.map(d => Math.abs(d.shap)));
+const el = document.getElementById('shap-waterfall');
+el.innerHTML = shapData.map(d => {
+  const w = (Math.abs(d.shap) / maxShap * 120).toFixed(0);
+  const barHtml = d.direction === 'pos'
+    ? `<div style="flex:1;display:flex;align-items:center;">
+         <div style="width:${w}px;height:10px;background:var(--teal);border-radius:0 3px 3px 0;"></div>
+       </div>`
+    : `<div style="flex:1;display:flex;align-items:center;justify-content:flex-end;">
+         <div style="width:${w}px;height:10px;background:var(--rose);border-radius:3px 0 0 3px;"></div>
+       </div>`;
+  return `<div class="shap-row">
+    <div class="shap-feat">${d.feat}</div>
+    <div class="shap-val">${d.val}</div>
+    <div style="flex:1;display:grid;grid-template-columns:1fr 1px 1fr;gap:2px;align-items:center;height:14px;">
+      <div style="display:flex;justify-content:flex-end;">${d.direction==='neg'?`<div style="width:${w}px;height:10px;background:var(--rose);border-radius:3px 0 0 3px;"></div>`:''}</div>
+      <div style="width:1px;height:14px;background:var(--rule2);"></div>
+      <div>${d.direction==='pos'?`<div style="width:${w}px;height:10px;background:var(--teal);border-radius:0 3px 3px 0;"></div>`:''}</div>
+    </div>
+    <div class="shap-label ${d.direction==='pos'?'shap-pos':'shap-neg'}">${d.shap>0?'+':''}${d.shap.toFixed(2)}</div>
+  </div>`;
+}).join('');
+
+// ── Threshold Table ─────────────────────────────────────────────────────
+const threshData = [
+  { t:0.30, prec:0.71, rec:0.98, f1:0.82, fpr:0.12, alerts:420 },
+  { t:0.40, prec:0.78, rec:0.97, f1:0.87, fpr:0.08, alerts:360 },
+  { t:0.50, prec:0.84, rec:0.96, f1:0.90, fpr:0.05, alerts:298 },
+  { t:0.55, prec:0.87, rec:0.96, f1:0.91, fpr:0.04, alerts:270 },
+  { t:0.60, prec:0.90, rec:0.95, f1:0.92, fpr:0.03, alerts:244 },
+  { t:0.65, prec:0.93, rec:0.95, f1:0.94, fpr:0.02, alerts:218, prod:true },
+  { t:0.70, prec:0.95, rec:0.92, f1:0.93, fpr:0.015, alerts:192 },
+  { t:0.75, prec:0.96, rec:0.88, f1:0.92, fpr:0.01, alerts:164 },
+  { t:0.80, prec:0.97, rec:0.82, f1:0.89, fpr:0.007, alerts:130 },
+];
+const maxAlerts = Math.max(...threshData.map(d=>d.alerts));
+document.getElementById('threshold-rows').innerHTML = threshData.map(d => {
+  const bw = (d.fpr / 0.12 * 120).toFixed(0);
+  const hl = d.prod ? ' highlight' : '';
+  return `<div class="thresh-row${hl}">
+    <div class="mono">${d.t.toFixed(2)}</div>
+    <div class="mono">${d.prec.toFixed(3)}</div>
+    <div class="mono">${d.rec.toFixed(3)}</div>
+    <div class="mono">${d.f1.toFixed(3)}</div>
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="thresh-bar-wrap" style="width:80px;">
+          <div class="thresh-bar" style="width:${bw}px;background:${d.fpr<0.03?'var(--sage)':d.fpr<0.06?'var(--gold)':'var(--rose)'};"></div>
+        </div>
+        <span class="mono">${(d.fpr*100).toFixed(1)}%</span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:${d.prod?'var(--gold)':'var(--ink4)'};">
+      ${d.alerts} alerts/day${d.prod?' ← <strong>production</strong>':''}
+    </div>
+  </div>`;
+}).join('');
+</script>
+
+</body>
+</html>

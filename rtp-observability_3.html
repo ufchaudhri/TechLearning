@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTP Payments Observability — Icon Framework</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg-void: #060a12;
+    --bg-panel: #0c1220;
+    --bg-card: #111927;
+    --bg-hover: #162033;
+    --border: #1e2d42;
+    --border-bright: #2a3f5a;
+
+    --amber: #f5a623;
+    --amber-dim: #c47e14;
+    --amber-glow: rgba(245,166,35,0.15);
+    --green: #22c55e;
+    --green-dim: #16a34a;
+    --red: #ef4444;
+    --red-dim: #b91c1c;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --purple: #a855f7;
+    --slate: #64748b;
+
+    --text-primary: #e2eaf5;
+    --text-secondary: #8899b4;
+    --text-muted: #4a5c74;
+    --text-mono: #a8c0d6;
+
+    --node-settled: #22c55e;
+    --node-active: #f5a623;
+    --node-pending: #3b82f6;
+    --node-failed: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg-void);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-mark {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--amber), var(--amber-dim));
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    color: #000;
+    letter-spacing: -1px;
+  }
+  .brand-label {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+  .brand-label span { color: var(--amber); }
+
+  .header-status {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .status-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-card);
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  .status-dot.live { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .status-dot.warn { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .header-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* METRICS BAR */
+  .metrics-bar {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .metric-tile {
+    flex: 1;
+    background: var(--bg-panel);
+    padding: 16px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .metric-tile.settled::before { background: var(--green); }
+  .metric-tile.active::before { background: var(--amber); }
+  .metric-tile.pending::before { background: var(--blue); }
+  .metric-tile.failed::before { background: var(--red); }
+
+  .metric-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 6px;
+  }
+  .metric-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .metric-tile.settled .metric-value { color: var(--green); }
+  .metric-tile.active .metric-value { color: var(--amber); }
+  .metric-tile.pending .metric-value { color: var(--blue); }
+  .metric-tile.failed .metric-value { color: var(--red); }
+
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 4px;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    grid-template-rows: auto 1fr;
+    gap: 1px;
+    background: var(--border);
+    height: calc(100vh - 110px);
+  }
+
+  .graph-area {
+    background: var(--bg-panel);
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .graph-header {
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .graph-title {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .graph-controls {
+    display: flex;
+    gap: 8px;
+  }
+  .ctrl-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-bright);
+    border-radius: 3px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+  .ctrl-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--amber); }
+  .ctrl-btn.active { background: var(--amber-glow); color: var(--amber); border-color: var(--amber-dim); }
+
+  /* SVG GRAPH */
+  .graph-canvas {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  #graph-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* NODE TOOLTIP */
+  .tooltip {
+    position: absolute;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-primary);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 200;
+    min-width: 220px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  .tooltip.visible { opacity: 1; }
+  .tooltip-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--amber);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 4px;
+    color: var(--text-secondary);
+  }
+  .tooltip-row span:last-child { color: var(--text-primary); }
+
+  /* RIGHT PANELS */
+  .panel-top {
+    background: var(--bg-panel);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-bottom {
+    background: var(--bg-panel);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .panel-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+  .badge.live { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge.alert { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+  /* TRANSACTION FEED */
+  .txn-feed {
+    overflow-y: auto;
+    flex: 1;
+    padding: 6px 0;
+  }
+  .txn-feed::-webkit-scrollbar { width: 4px; }
+  .txn-feed::-webkit-scrollbar-track { background: transparent; }
+  .txn-feed::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+  .txn-item {
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(30,45,66,0.5);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: grid;
+    grid-template-columns: 8px 1fr auto;
+    gap: 10px;
+    align-items: start;
+  }
+  .txn-item:hover { background: var(--bg-hover); }
+  .txn-item.selected { background: var(--bg-hover); border-left: 2px solid var(--amber); padding-left: 16px; }
+
+  .txn-state-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .txn-state-dot.settled { background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+  .txn-state-dot.active  { background: var(--amber); box-shadow: 0 0 6px rgba(245,166,35,0.5); animation: pulse 1.5s infinite; }
+  .txn-state-dot.pending { background: var(--blue);  box-shadow: 0 0 6px rgba(59,130,246,0.5); }
+  .txn-state-dot.failed  { background: var(--red);   box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+
+  .txn-meta { min-width: 0; }
+  .txn-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .txn-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .txn-amount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .txn-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    text-align: right;
+  }
+
+  /* LATENCY PANEL */
+  .latency-section {
+    padding: 12px 18px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  .hop-row {
+    margin-bottom: 12px;
+  }
+  .hop-label-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .hop-label-row span:last-child { color: var(--text-primary); }
+  .hop-bar-track {
+    height: 6px;
+    background: var(--bg-void);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .hop-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+  .hop-bar-fill.good  { background: linear-gradient(90deg, var(--green-dim), var(--green)); }
+  .hop-bar-fill.warn  { background: linear-gradient(90deg, var(--amber-dim), var(--amber)); }
+  .hop-bar-fill.crit  { background: linear-gradient(90deg, var(--red-dim), var(--red)); }
+
+  /* LEGEND */
+  .legend-strip {
+    display: flex;
+    gap: 16px;
+    padding: 8px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-void);
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .legend-line {
+    width: 20px; height: 2px;
+    border-radius: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="brand-mark">OB</div>
+    <div class="brand-label"><span>Icon</span> · RTP Payments Observability</div>
+  </div>
+  <div class="header-status">
+    <div class="status-pill">
+      <div class="status-dot live"></div>
+      LIVE FEED
+    </div>
+    <div class="status-pill">
+      <div class="status-dot warn"></div>
+      3 ANOMALIES
+    </div>
+    <div class="header-time" id="clock">—</div>
+  </div>
+</header>
+
+<!-- METRICS BAR -->
+<div class="metrics-bar">
+  <div class="metric-tile settled">
+    <div class="metric-label">Settled</div>
+    <div class="metric-value" id="cnt-settled">847</div>
+    <div class="metric-sub">last 60 min</div>
+  </div>
+  <div class="metric-tile active">
+    <div class="metric-label">In-Flight</div>
+    <div class="metric-value" id="cnt-active">12</div>
+    <div class="metric-sub">processing now</div>
+  </div>
+  <div class="metric-tile pending">
+    <div class="metric-label">Pending ACK</div>
+    <div class="metric-value" id="cnt-pending">5</div>
+    <div class="metric-sub">awaiting rail</div>
+  </div>
+  <div class="metric-tile failed">
+    <div class="metric-label">Failed / RR</div>
+    <div class="metric-value" id="cnt-failed">3</div>
+    <div class="metric-sub">require review</div>
+  </div>
+  <div class="metric-tile" style="flex:1.4">
+    <div class="metric-label">Avg E2E Latency</div>
+    <div class="metric-value" style="color:var(--cyan)" id="avg-latency">284ms</div>
+    <div class="metric-sub">p99: 1.2s</div>
+  </div>
+  <div class="metric-tile" style="flex:1.4">
+    <div class="metric-label">Total Value (GBP)</div>
+    <div class="metric-value" style="color:var(--purple)" id="total-value">£2.4M</div>
+    <div class="metric-sub">last 60 min</div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- GRAPH AREA -->
+  <div class="graph-area">
+    <div class="graph-header">
+      <div class="graph-title">Transaction Flow Graph — RTP via Icon Payments Framework</div>
+      <div class="graph-controls">
+        <button class="ctrl-btn active" onclick="setView('flow')">Flow View</button>
+        <button class="ctrl-btn" onclick="setView('trace')">Trace Mode</button>
+        <button class="ctrl-btn" onclick="setView('topo')">Topology</button>
+      </div>
+    </div>
+    <div class="graph-canvas">
+      <svg id="graph-svg" viewBox="0 0 900 520" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- GLOW FILTERS -->
+          <filter id="glow-amber" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-blue">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- ARROWHEADS -->
+          <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#22c55e" opacity="0.8"/>
+          </marker>
+          <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#f5a623" opacity="0.9"/>
+          </marker>
+          <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#ef4444" opacity="0.9"/>
+          </marker>
+          <marker id="arrow-muted" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#2a3f5a"/>
+          </marker>
+          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6" opacity="0.8"/>
+          </marker>
+
+          <!-- ANIMATED GRADIENT FOR ACTIVE EDGES -->
+          <linearGradient id="flow-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f5a623" stop-opacity="0.2"/>
+            <stop offset="50%" stop-color="#f5a623" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#22c55e" stop-opacity="0.2"/>
+          </linearGradient>
+          <linearGradient id="flow-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#22c55e" stop-opacity="0.2"/>
+            <stop offset="50%" stop-color="#22c55e" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#22c55e" stop-opacity="0.2"/>
+          </linearGradient>
+          <linearGradient id="flow-grad-fail" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.2"/>
+            <stop offset="50%" stop-color="#ef4444" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0.2"/>
+          </linearGradient>
+          <linearGradient id="flow-grad-blue" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
+            <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.2"/>
+          </linearGradient>
+
+          <!-- GRID PATTERN -->
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a2535" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- BACKGROUND GRID -->
+        <rect width="900" height="520" fill="url(#grid)"/>
+        <rect width="900" height="520" fill="url(#bg-radial)" opacity="0.4"/>
+
+        <!-- SWIMLANE LABELS -->
+        <text x="18" y="80" font-family="IBM Plex Mono" font-size="9" fill="#2a3f5a" letter-spacing="2" transform="rotate(-90,18,80)" text-anchor="middle">CUSTOMER</text>
+        <text x="18" y="200" font-family="IBM Plex Mono" font-size="9" fill="#2a3f5a" letter-spacing="2" transform="rotate(-90,18,200)" text-anchor="middle">CHANNEL</text>
+        <text x="18" y="320" font-family="IBM Plex Mono" font-size="9" fill="#2a3f5a" letter-spacing="2" transform="rotate(-90,18,320)" text-anchor="middle">ICON ORCH</text>
+        <text x="18" y="440" font-family="IBM Plex Mono" font-size="9" fill="#2a3f5a" letter-spacing="2" transform="rotate(-90,18,440)" text-anchor="middle">RTP RAIL</text>
+
+        <!-- SWIMLANE DIVIDERS -->
+        <line x1="30" y1="130" x2="900" y2="130" stroke="#1a2535" stroke-width="1" stroke-dasharray="4,8"/>
+        <line x1="30" y1="260" x2="900" y2="260" stroke="#1a2535" stroke-width="1" stroke-dasharray="4,8"/>
+        <line x1="30" y1="390" x2="900" y2="390" stroke="#1a2535" stroke-width="1" stroke-dasharray="4,8"/>
+
+        <!-- ═══════════════════════════════ EDGES ═══════════════════════════════ -->
+
+        <!-- Customer → Mobile App (same lane) -->
+        <path d="M 120,80 Q 170,80 200,80" stroke="#2a3f5a" stroke-width="1.5" fill="none" marker-end="url(#arrow-muted)"/>
+
+        <!-- Mobile App → API Gateway -->
+        <path d="M 270,100 Q 270,155 310,175" stroke="url(#flow-grad-1)" stroke-width="2.5" fill="none" marker-end="url(#arrow-amber)" stroke-dasharray="0">
+          <animate attributeName="stroke-dashoffset" values="0;-20" dur="0.8s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- Web Portal → API Gateway -->
+        <path d="M 270,60 L 270,55 Q 330,55 330,155 L 330,170" stroke="#1e2d42" stroke-width="1.5" fill="none" marker-end="url(#arrow-muted)"/>
+
+        <!-- API Gateway → Auth / Fraud Check -->
+        <path d="M 400,175 L 460,175" stroke="url(#flow-grad-1)" stroke-width="2" fill="none" marker-end="url(#arrow-amber)"/>
+
+        <!-- Auth → Payment Initiation -->
+        <path d="M 550,175 L 610,175" stroke="url(#flow-grad-1)" stroke-width="2" fill="none" marker-end="url(#arrow-amber)"/>
+
+        <!-- Payment Initiation → Icon Orchestrator (key hop) -->
+        <path d="M 680,195 Q 680,260 590,280" stroke="url(#flow-grad-1)" stroke-width="3" fill="none" marker-end="url(#arrow-amber)">
+        </path>
+
+        <!-- Icon Orchestrator → Compliance/AML -->
+        <path d="M 520,300 L 460,300" stroke="#3b82f6" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="5,3"/>
+
+        <!-- Icon Orchestrator → Settlement Engine -->
+        <path d="M 620,300 L 680,300" stroke="url(#flow-grad-1)" stroke-width="2.5" fill="none" marker-end="url(#arrow-amber)"/>
+
+        <!-- Icon Orchestrator → Retry/Error (failed path) -->
+        <path d="M 570,315 Q 570,355 500,360" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#arrow-red)" stroke-dasharray="4,3" opacity="0.7"/>
+
+        <!-- Settlement Engine → RTP Clearing -->
+        <path d="M 720,320 Q 720,390 680,405" stroke="url(#flow-grad-2)" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+
+        <!-- RTP Clearing → Confirmation / Webhook -->
+        <path d="M 590,415 L 520,415" stroke="url(#flow-grad-2)" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+
+        <!-- Confirmation → Notification (back up) -->
+        <path d="M 490,395 Q 490,350 490,325 Q 490,250 460,200" stroke="#22c55e" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)" stroke-dasharray="4,4" opacity="0.5"/>
+
+        <!-- RTP Clearing → Beneficiary Bank -->
+        <path d="M 750,415 L 820,415" stroke="url(#flow-grad-2)" stroke-width="2.5" fill="none" marker-end="url(#arrow-green)"/>
+
+        <!-- ═══════════════════════════════ NODES ═══════════════════════════════ -->
+
+        <!-- CUSTOMER LAYER -->
+        <!-- Node: Customer -->
+        <g class="node" data-id="customer" data-type="source" data-state="active" data-latency="0ms" data-txns="847" data-label="Customer Origin" transform="translate(80,65)">
+          <rect x="-36" y="-18" width="72" height="36" rx="5" fill="#111927" stroke="#f5a623" stroke-width="1.5" filter="url(#glow-amber)"/>
+          <text y="-4" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="600">CUSTOMER</text>
+          <text y="8" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#64748b">ORIGIN</text>
+        </g>
+
+        <!-- Node: Mobile App -->
+        <g class="node" data-id="mobile" data-state="active" data-latency="12ms" data-txns="612" data-label="Mobile Banking App" transform="translate(235,80)">
+          <rect x="-32" y="-16" width="64" height="32" rx="4" fill="#0f1c2e" stroke="#f5a623" stroke-width="1.5"/>
+          <text y="-3" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a8c0d6" font-weight="500">MOBILE</text>
+          <text y="8" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">APP</text>
+          <circle cx="24" cy="-10" r="4" fill="#f5a623" filter="url(#glow-amber)">
+            <animate attributeName="r" values="4;5;4" dur="2s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- Node: Web Portal -->
+        <g class="node" data-id="web" data-state="settled" data-latency="18ms" data-txns="235" data-label="Web Banking Portal" transform="translate(235,55)">
+          <rect x="-32" y="-14" width="64" height="28" rx="4" fill="#0f1c2e" stroke="#1e2d42" stroke-width="1"/>
+          <text y="-2" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5c74">WEB</text>
+          <text y="8" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#2a3f5a">PORTAL</text>
+        </g>
+
+        <!-- CHANNEL LAYER -->
+        <!-- Node: API Gateway -->
+        <g class="node" data-id="api-gw" data-state="active" data-latency="8ms" data-txns="847" data-label="API Gateway" transform="translate(360,175)">
+          <rect x="-38" y="-20" width="76" height="40" rx="5" fill="#0f1c2e" stroke="#f5a623" stroke-width="2" filter="url(#glow-amber)"/>
+          <text y="-5" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="600">API</text>
+          <text y="7" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">GATEWAY</text>
+          <text y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">8ms avg</text>
+        </g>
+
+        <!-- Node: Auth / Fraud -->
+        <g class="node" data-id="auth" data-state="active" data-latency="42ms" data-txns="847" data-label="Auth & Fraud Screening" transform="translate(505,175)">
+          <rect x="-40" y="-20" width="80" height="40" rx="5" fill="#0f1c2e" stroke="#3b82f6" stroke-width="1.5"/>
+          <text y="-5" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#3b82f6" font-weight="600">AUTH &amp;</text>
+          <text y="7" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">FRAUD CHECK</text>
+          <text y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">42ms avg</text>
+        </g>
+
+        <!-- Node: Payment Initiation -->
+        <g class="node" data-id="pay-init" data-state="active" data-latency="15ms" data-txns="847" data-label="Payment Initiation Service" transform="translate(645,175)">
+          <rect x="-42" y="-20" width="84" height="40" rx="5" fill="#0f1c2e" stroke="#f5a623" stroke-width="2" filter="url(#glow-amber)"/>
+          <text y="-5" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="600">PAYMENT</text>
+          <text y="7" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">INITIATION</text>
+          <text y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">15ms avg</text>
+        </g>
+
+        <!-- ICON ORCHESTRATION LAYER -->
+        <!-- Node: Icon Orchestrator (CENTRAL) -->
+        <g class="node" data-id="icon-orch" data-state="active" data-latency="35ms" data-txns="847" data-label="Icon Payments Orchestrator" transform="translate(570,295)">
+          <rect x="-54" y="-28" width="108" height="56" rx="8" fill="#0c1628" stroke="#f5a623" stroke-width="2.5" filter="url(#glow-amber)"/>
+          <!-- Decorative inner border -->
+          <rect x="-48" y="-22" width="96" height="44" rx="5" fill="none" stroke="#f5a62344" stroke-width="1"/>
+          <text y="-10" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#f5a623" font-weight="600" letter-spacing="1">ICON</text>
+          <text y="2" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#8899b4">ORCHESTRATOR</text>
+          <text y="14" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">35ms · 847 txn/hr</text>
+          <!-- Activity indicator -->
+          <circle cx="44" cy="-22" r="5" fill="#060a12" stroke="#f5a623" stroke-width="1.5">
+            <animate attributeName="stroke-opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="44" cy="-22" r="2.5" fill="#f5a623">
+            <animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- Node: Compliance / AML -->
+        <g class="node" data-id="aml" data-state="pending" data-latency="68ms" data-txns="847" data-label="Compliance & AML Engine" transform="translate(415,300)">
+          <rect x="-40" y="-20" width="80" height="40" rx="5" fill="#0f1c2e" stroke="#3b82f6" stroke-width="1.5"/>
+          <text y="-5" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#3b82f6" font-weight="600">COMPLIANCE</text>
+          <text y="7" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">AML / SANCTIONS</text>
+          <text y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">68ms avg</text>
+        </g>
+
+        <!-- Node: Settlement Engine -->
+        <g class="node" data-id="settlement" data-state="active" data-latency="22ms" data-txns="847" data-label="Settlement Engine" transform="translate(720,300)">
+          <rect x="-40" y="-20" width="80" height="40" rx="5" fill="#0f1c2e" stroke="#f5a623" stroke-width="2"/>
+          <text y="-5" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="600">SETTLEMENT</text>
+          <text y="7" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">ENGINE</text>
+          <text y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">22ms avg</text>
+        </g>
+
+        <!-- Node: Retry / Error Handler -->
+        <g class="node" data-id="retry" data-state="failed" data-latency="—" data-txns="3" data-label="Retry & Error Handler" transform="translate(460,360)">
+          <rect x="-36" y="-17" width="72" height="34" rx="4" fill="#1a0a0a" stroke="#ef4444" stroke-width="1.5" filter="url(#glow-red)"/>
+          <text y="-4" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ef4444" font-weight="600">RETRY /</text>
+          <text y="8" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#ef4444" opacity="0.7">ERROR HDL</text>
+        </g>
+
+        <!-- RTP RAIL LAYER -->
+        <!-- Node: RTP Clearing -->
+        <g class="node" data-id="rtp-clear" data-state="settled" data-latency="120ms" data-txns="844" data-label="RTP Clearing Network" transform="translate(660,415)">
+          <rect x="-46" y="-24" width="92" height="48" rx="6" fill="#091a0f" stroke="#22c55e" stroke-width="2" filter="url(#glow-green)"/>
+          <rect x="-40" y="-18" width="80" height="36" rx="4" fill="none" stroke="#22c55e44" stroke-width="1"/>
+          <text y="-6" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#22c55e" font-weight="600">RTP CLEARING</text>
+          <text y="5" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">NETWORK</text>
+          <text y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">120ms avg</text>
+        </g>
+
+        <!-- Node: Confirmation / Webhook -->
+        <g class="node" data-id="confirm" data-state="settled" data-latency="9ms" data-txns="844" data-label="Confirmation & Webhook" transform="translate(484,415)">
+          <rect x="-40" y="-20" width="80" height="40" rx="5" fill="#091a0f" stroke="#22c55e" stroke-width="1.5"/>
+          <text y="-5" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#22c55e" font-weight="600">CONFIRM</text>
+          <text y="7" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">WEBHOOK</text>
+          <text y="16" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">9ms avg</text>
+        </g>
+
+        <!-- Node: Beneficiary Bank -->
+        <g class="node" data-id="beneficiary" data-state="settled" data-latency="55ms" data-txns="844" data-label="Beneficiary Bank" transform="translate(855,415)">
+          <rect x="-36" y="-22" width="72" height="44" rx="5" fill="#091a0f" stroke="#22c55e" stroke-width="2" filter="url(#glow-green)"/>
+          <text y="-7" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#22c55e" font-weight="600">BENEFICIARY</text>
+          <text y="4" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">BANK</text>
+          <text y="15" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5c74">55ms avg</text>
+        </g>
+
+        <!-- ═════════════ EDGE LABELS ═════════════ -->
+        <text x="308" y="144" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">initiate</text>
+        <text x="416" y="168" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">validate</text>
+        <text x="560" y="168" font-family="IBM Plex Mono" font-size="8" fill="#8899b4">enqueue</text>
+        <text x="588" y="252" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">submit RTP</text>
+        <text x="430" y="293" font-family="IBM Plex Mono" font-size="8" fill="#3b82f6">screen</text>
+        <text x="648" y="293" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">settle</text>
+        <text x="673" y="370" font-family="IBM Plex Mono" font-size="8" fill="#22c55e">clear</text>
+        <text x="762" y="408" font-family="IBM Plex Mono" font-size="8" fill="#22c55e">credit</text>
+        <text x="498" y="360" font-family="IBM Plex Mono" font-size="8" fill="#ef4444">retry</text>
+
+        <!-- ANOMALY MARKERS -->
+        <g transform="translate(415,280)">
+          <polygon points="0,-8 7,4 -7,4" fill="#ef4444" opacity="0.9">
+            <animate attributeName="opacity" values="0.9;0.3;0.9" dur="1s" repeatCount="indefinite"/>
+          </polygon>
+          <text y="14" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#ef4444">HIGH LAT</text>
+        </g>
+
+      </svg>
+      <div class="tooltip" id="tooltip">
+        <div class="tooltip-title" id="tt-title">—</div>
+        <div class="tooltip-row"><span>State</span><span id="tt-state">—</span></div>
+        <div class="tooltip-row"><span>Avg Latency</span><span id="tt-latency">—</span></div>
+        <div class="tooltip-row"><span>Txn Volume</span><span id="tt-txns">—</span></div>
+        <div class="tooltip-row"><span>Type</span><span id="tt-type">Processing Node</span></div>
+      </div>
+    </div>
+    <!-- LEGEND -->
+    <div class="legend-strip">
+      <div class="legend-item"><div class="legend-dot" style="background:#f5a623"></div> Active / In-Flight</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> Settled</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Pending ACK</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Failed / Retry</div>
+      <div style="width:1px;background:var(--border);height:14px;margin:0 4px"></div>
+      <div class="legend-item"><div class="legend-line" style="background:var(--amber)"></div> Hot Path</div>
+      <div class="legend-item"><div class="legend-line" style="background:#22c55e"></div> Settlement Path</div>
+      <div class="legend-item"><div class="legend-line" style="background:#3b82f6; opacity:0.7"></div> Compliance Path</div>
+      <div class="legend-item"><div class="legend-line" style="background:#ef4444; opacity:0.7"></div> Error Path</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: TRANSACTION FEED -->
+  <div class="panel-top">
+    <div class="panel-header">
+      <div class="panel-label">Live Transaction Feed</div>
+      <div class="badge live">STREAMING</div>
+    </div>
+    <div class="txn-feed" id="txn-feed">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- RIGHT: LATENCY HEATMAP -->
+  <div class="panel-bottom">
+    <div class="panel-header">
+      <div class="panel-label">Hop Latency — P95</div>
+      <div class="badge alert">1 BREACH</div>
+    </div>
+    <div class="latency-section">
+      <div class="hop-row">
+        <div class="hop-label-row"><span>Customer → API GW</span><span>20ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill good" style="width:8%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>API GW → Auth/Fraud</span><span>58ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill good" style="width:22%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>Auth → Pay Initiation</span><span>18ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill good" style="width:7%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>Pay Init → Icon Orch</span><span>42ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill good" style="width:16%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>Icon → AML/Compliance</span><span style="color:#ef4444">312ms ⚠</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill crit" style="width:100%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>Icon → Settlement Eng</span><span>28ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill good" style="width:11%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>Settlement → RTP Clear</span><span>145ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill warn" style="width:54%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>RTP → Beneficiary Bank</span><span>68ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill good" style="width:26%"></div></div>
+      </div>
+      <div class="hop-row">
+        <div class="hop-label-row"><span>Confirm Webhook</span><span>11ms</span></div>
+        <div class="hop-bar-track"><div class="hop-bar-fill good" style="width:4%"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ─── CLOCK ───────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toUTCString().replace('GMT','UTC').split(' ').slice(0,5).join(' ');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ─── TRANSACTION DATA ────────────────────────────────────
+  const names = ['Sarah K.','James O.','Amara N.','Chen W.','Liam B.','Fatima A.','Oliver R.','Priya S.'];
+  const targets = ['Barclays ···4821','HSBC ···7703','Lloyds ···2291','Natwest ···9944','Monzo ···0012','Starling ···3378'];
+  const states = ['settled','settled','settled','settled','active','active','pending','failed'];
+  const amounts = ['£2,500','£850','£12,000','£450','£3,200','£75','£9,800','£1,650','£320','£5,500'];
+
+  function randEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function randId() { return 'RTP-' + Math.random().toString(36).substr(2,8).toUpperCase(); }
+  function secAgo() {
+    const s = Math.floor(Math.random() * 59);
+    return s === 0 ? 'just now' : `${s}s ago`;
+  }
+
+  function makeTxn() {
+    return {
+      id: randId(),
+      state: randEl(states),
+      from: randEl(names),
+      to: randEl(targets),
+      amount: randEl(amounts),
+      time: secAgo()
+    };
+  }
+
+  const feed = document.getElementById('txn-feed');
+  const txns = Array.from({length:18}, makeTxn);
+
+  function renderFeed() {
+    feed.innerHTML = txns.map((t,i) => `
+      <div class="txn-item ${i===0?'selected':''}" onclick="selectTxn(${i})">
+        <div class="txn-state-dot ${t.state}"></div>
+        <div class="txn-meta">
+          <div class="txn-id">${t.id}</div>
+          <div class="txn-desc">${t.from} → ${t.to}</div>
+        </div>
+        <div>
+          <div class="txn-amount">${t.amount}</div>
+          <div class="txn-time">${t.time}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectTxn(i) {
+    document.querySelectorAll('.txn-item').forEach((el,j) => {
+      el.classList.toggle('selected', j===i);
+    });
+  }
+
+  renderFeed();
+
+  // Inject new transactions every ~4s
+  setInterval(() => {
+    txns.unshift(makeTxn());
+    txns.pop();
+    renderFeed();
+    // bump counters slightly
+    const settled = document.getElementById('cnt-settled');
+    settled.textContent = parseInt(settled.textContent) + Math.floor(Math.random()*2);
+  }, 4000);
+
+  // ─── NODE TOOLTIPS ───────────────────────────────────────
+  const tooltip = document.getElementById('tooltip');
+  const canvas = document.querySelector('.graph-canvas');
+
+  document.querySelectorAll('.node').forEach(node => {
+    node.style.cursor = 'pointer';
+    node.addEventListener('mouseenter', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const svgRect = document.getElementById('graph-svg').getBoundingClientRect();
+      document.getElementById('tt-title').textContent = node.dataset.label;
+      document.getElementById('tt-state').textContent = node.dataset.state.toUpperCase();
+      document.getElementById('tt-state').style.color =
+        node.dataset.state === 'settled' ? 'var(--green)' :
+        node.dataset.state === 'active' ? 'var(--amber)' :
+        node.dataset.state === 'pending' ? 'var(--blue)' : 'var(--red)';
+      document.getElementById('tt-latency').textContent = node.dataset.latency + (node.dataset.latency !== '—' ? ' avg' : '');
+      document.getElementById('tt-txns').textContent = node.dataset.txns + (node.dataset.txns !== '—' ? '/hr' : '');
+      document.getElementById('tt-type').textContent = node.dataset.type || 'Processing Node';
+
+      const x = e.clientX - rect.left + 12;
+      const y = e.clientY - rect.top + 12;
+      tooltip.style.left = Math.min(x, rect.width - 240) + 'px';
+      tooltip.style.top = Math.min(y, rect.height - 160) + 'px';
+      tooltip.classList.add('visible');
+    });
+    node.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+  });
+
+  // ─── VIEW BUTTONS ────────────────────────────────────────
+  function setView(v) {
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    // In a real impl, this would re-render the graph in different modes
+  }
+
+  // ─── LATENCY ANIMATION ───────────────────────────────────
+  // Gently animate the hop bars
+  setInterval(() => {
+    const bars = document.querySelectorAll('.hop-bar-fill.good');
+    bars.forEach(b => {
+      const base = parseFloat(b.style.width);
+      const delta = (Math.random() - 0.5) * 4;
+      b.style.width = Math.max(3, Math.min(85, base + delta)) + '%';
+    });
+  }, 2500);
+</script>
+</body>
+</html>

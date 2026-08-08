@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ADLC Simulator — Tech Learning</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/logo.svg" alt="Tech Learning" class="brand-logo">
+        <span class="brand-text">Tech Learning</span>
+      </a>
+      <nav class="nav">
+        <ul>
+          <li><a href="../prototypes.html">Prototypes</a></li>
+          <li><a href="../learning.html">Learning</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">ADLC Delivery Cycle Simulator</h1>
+    <p class="lead">Adjust parameters to simulate delivery throughput and cycle time.</p>
+
+    <section class="simulator card">
+      <div class="controls">
+        <label>Team size: <input id="teamSize" type="range" min="1" max="20" value="6"></label>
+        <label>Avg story size (points): <input id="storySize" type="range" min="1" max="20" value="5"></label>
+        <label>Deployment frequency (per week): <input id="deployFreq" type="range" min="0" max="7" value="2"></label>
+        <button id="runSim" class="btn primary">Run simulation</button>
+      </div>
+      <div class="output">
+        <h3>Results</h3>
+        <div id="results">Adjust parameters and run the simulation.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>&copy; <span id="year">2026</span> Tech Learning</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function run() {
+      const team = Number(document.getElementById('teamSize').value);
+      const story = Number(document.getElementById('storySize').value);
+      const freq = Number(document.getElementById('deployFreq').value);
+      // Simple throughput model: throughput = team * (10/story) * freq
+      const throughput = (team * (10 / story) * Math.max(1,freq)).toFixed(1);
+      const cycle = (story * 2 / team).toFixed(1);
+      const txt = `Estimated throughput (stories/week): ${throughput}<br>Estimated average cycle time (weeks): ${cycle}`;
+      document.getElementById('results').innerHTML = txt;
+    }
+    document.getElementById('runSim').addEventListener('click', run);
+  </script>
+</body>
+</html>

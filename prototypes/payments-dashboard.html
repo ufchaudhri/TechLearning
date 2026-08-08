@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Payments Simulator — Tech Learning</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html">
+        <img src="../assets/logo.svg" alt="Tech Learning" class="brand-logo">
+        <span class="brand-text">Tech Learning</span>
+      </a>
+      <nav class="nav">
+        <ul>
+          <li><a href="../prototypes.html">Prototypes</a></li>
+          <li><a href="../learning.html">Learning</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">Payments — Fraud & Throughput Simulator</h1>
+    <p class="lead">Model transactions, fraud rate, and processing throughput.</p>
+
+    <section class="simulator card">
+      <div class="controls">
+        <label>Transactions per hour: <input id="txRate" type="range" min="100" max="20000" value="2000"></label>
+        <label>Fraud rate (%): <input id="fraudRate" type="range" min="0" max="10" value="1"></label>
+        <label>Workers (processing threads): <input id="workers" type="range" min="1" max="200" value="20"></label>
+        <button id="runPay" class="btn primary">Run</button>
+      </div>
+      <div class="output">
+        <h3>Results</h3>
+        <div id="pResults">Adjust parameters and run the simulation.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>&copy; <span id="year">2026</span> Tech Learning</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function runPay() {
+      const tx = Number(document.getElementById('txRate').value);
+      const fraud = Number(document.getElementById('fraudRate').value);
+      const w = Number(document.getElementById('workers').value);
+      const processedPerHour = Math.min(tx, w * 200);
+      const fraudEvents = Math.round((processedPerHour * fraud) / 100);
+      const latency = (1000 / (w * 5)).toFixed(1);
+      const txt = `Processed/hour: ${processedPerHour}<br>Estimated fraud events/hour: ${fraudEvents}<br>Avg processing latency (ms): ${latency}`;
+      document.getElementById('pResults').innerHTML = txt;
+    }
+    document.getElementById('runPay').addEventListener('click', runPay);
+  </script>
+</body>
+</html>

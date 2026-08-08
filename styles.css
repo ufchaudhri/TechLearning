@@ -1,0 +1,74 @@
+/* Bright, executive-friendly stylesheet */
+:root{
+  --bg:#ffffff;
+  --muted:#6b7280;
+  --accent:#0f172a;
+  --primary:#0b63ff;
+  --surface:#f8fafc;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  background:var(--bg);
+  color:var(--accent);
+  -webkit-font-smoothing:antialiased;
+}
+.container{max-width:1100px;margin:0 auto;padding:1.25rem}
+.site-header{border-bottom:1px solid #eef2f7;background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0));backdrop-filter:saturate(120%) blur(4px)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0}
+.brand{display:flex;align-items:center;gap:0.6rem;text-decoration:none}
+.brand-logo{height:36px;width:36px;display:inline-block}
+.brand-text{font-weight:700;color:var(--accent);font-size:1.125rem}
+.nav ul{list-style:none;margin:0;padding:0;display:flex;gap:1rem}
+.nav a{color:var(--accent);text-decoration:none;padding:0.35rem 0.45rem;border-radius:6px}
+.nav a:hover{background:var(--surface)}
+.nav-toggle{display:none;background:transparent;border:0;font-size:1.25rem}
+
+/* Secondary nav group styling for larger menus */
+.nav .group-title{font-weight:600;color:var(--muted);font-size:0.85rem;margin-right:0.5rem}
+.nav .nav-group{display:flex;align-items:center;gap:0.5rem}
+
+.hero{padding:3.5rem 0;background:linear-gradient(180deg,#ffffff, #fbfdff)}
+.hero h1{margin:0 0 0.5rem;font-size:2rem;color:var(--accent)}
+.lead{color:#374151;margin:0 0 1.25rem}
+.cta-row{display:flex;gap:0.75rem;margin-top:1rem}
+.btn{display:inline-block;padding:0.6rem 1rem;border-radius:8px;text-decoration:none;border:1px solid transparent}
+.btn.primary{background:var(--primary);color:white}
+.btn.ghost{background:transparent;border-color:#e6eefc;color:var(--primary)}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;padding:2rem 0}
+.features article{background:#fff;border:1px solid #eef2f7;padding:1.25rem;border-radius:8px;box-shadow:0 6px 16px rgba(15,23,42,0.04)}
+.features h2{margin:0 0 0.5rem;font-size:1.125rem}
+
+.resources{padding:1.5rem 0}
+.resource-list{list-style:none;padding:0;margin:0;display:grid;gap:0.5rem}
+.resource-list a{color:var(--primary);text-decoration:none}
+
+/* Generic card */
+.card{background:#fff;border:1px solid #eef2f7;padding:1rem;border-radius:8px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+
+/* Dashboard / simulator utilities */
+.simulator{display:grid;grid-template-columns:1fr;gap:1rem}
+.simulator .controls{display:flex;flex-direction:column;gap:0.5rem}
+.simulator .output{background:#f8fafc;padding:1rem;border-radius:8px;border:1px solid #eef2f7}
+
+/* Page title */
+.page-title{font-size:1.5rem;margin:0 0 0.5rem;color:var(--accent)}
+
+
+.contact{padding:1.5rem 0;border-top:1px solid #f1f5f9}
+
+.site-footer{border-top:1px solid #eef2f7;padding:1rem 0;background:#fff}
+.footer-inner{display:flex;justify-content:space-between;gap:1rem;align-items:center}
+.site-footer a{color:var(--muted);text-decoration:none;margin-left:0.75rem}
+
+@media (max-width:768px){
+  .nav{position:absolute;right:1rem;top:64px;background:var(--bg);box-shadow:0 8px 20px rgba(2,6,23,0.06);border-radius:10px;padding:1rem;display:none}
+  .nav.open{display:block}
+  .nav ul{flex-direction:column}
+  .nav-toggle{display:inline-block}
+  .footer-inner{flex-direction:column;align-items:flex-start}
+}

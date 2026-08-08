@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Agents Are Built — ADLC Technical Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ── TOKENS ── */
+:root {
+  --white:   #ffffff;
+  --bg:      #faf9f7;
+  --bg2:     #f0ede8;
+  --surface: #ffffff;
+  --border:  #e5e0d8;
+  --border2: #d4cfc5;
+  --ink:  #1a1714;
+  --ink2: #3d3830;
+  --ink3: #7a7268;
+  --ink4: #b0a89e;
+  --accent:       #1a4fd6;
+  --accent-light: #eef2ff;
+  --accent2:      #0f3399;
+  --emerald:       #0d7a5f;
+  --emerald-light: #e0f5ef;
+  --amber:         #92400e;
+  --amber-light:   #fef3cd;
+  --rose:          #9f1239;
+  --rose-light:    #ffe4ec;
+  --purple:        #5b21b6;
+  --purple-light:  #ede9fe;
+  --heading: 'Fraunces', serif;
+  --body:    'DM Sans', sans-serif;
+  --mono:    'DM Mono', monospace;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow:    0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.10);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.65;
+}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── TOPNAV ── */
+.topnav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  height: 64px;
+  display: flex; align-items: center;
+  padding: 0 40px;
+  box-shadow: 0 1px 0 var(--border);
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 12px;
+  padding-right: 32px; border-right: 1px solid var(--border);
+  margin-right: 28px; flex-shrink: 0;
+}
+.nav-logo {
+  width: 36px; height: 36px;
+  background: var(--ink);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  color: white; letter-spacing: 0.05em;
+}
+.nav-title { font-family: var(--heading); font-size: 17px; font-weight: 600; color: var(--ink); }
+.nav-title span { color: var(--accent); }
+.nav-subtitle { font-size: 11px; color: var(--ink4); margin-top: 1px; }
+.nav-links { display: flex; gap: 0; }
+.nav-link {
+  padding: 6px 16px; border-radius: 6px;
+  font-size: 13px; font-weight: 500; color: var(--ink3);
+  cursor: pointer; text-decoration: none; transition: all 0.15s;
+}
+.nav-link:hover  { color: var(--ink); background: var(--bg2); }
+.nav-link.active { color: var(--accent); background: var(--accent-light); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.doc-badge {
+  background: var(--ink); color: white;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 4px;
+  font-family: var(--mono);
+}
+
+/* ── SECTION NAV ── */
+.section-nav {
+  position: sticky; top: 64px; z-index: 100;
+  background: rgba(250,249,247,0.97); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex; gap: 0; overflow-x: auto;
+}
+.snav-item {
+  padding: 12px 16px;
+  font-size: 12px; font-weight: 500; color: var(--ink3);
+  cursor: pointer; white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.snav-item:hover { color: var(--ink); }
+.snav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── HERO ── */
+.hero {
+  background: var(--ink);
+  padding: 80px 40px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(26,79,214,0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(91,33,182,0.2) 0%, transparent 50%),
+    radial-gradient(circle at 60% 80%, rgba(13,122,95,0.15) 0%, transparent 40%);
+}
+.hero-inner { position: relative; max-width: 1320px; margin: 0 auto; }
+.hero-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.12em; color: rgba(255,255,255,0.5);
+  margin-bottom: 16px; font-family: var(--mono);
+}
+.hero-title {
+  font-family: var(--heading); font-size: 56px; font-weight: 700;
+  color: white; line-height: 1.08; margin-bottom: 16px; max-width: 780px;
+}
+.hero-title em { font-style: italic; color: rgba(99,148,255,1); }
+.hero-sub {
+  font-size: 18px; color: rgba(255,255,255,0.6);
+  max-width: 620px; line-height: 1.6; margin-bottom: 36px;
+}
+.hero-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero-chip {
+  padding: 6px 14px; border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px; font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.05);
+  font-family: var(--mono);
+}
+
+/* ── LAYOUT ── */
+.layout {
+  display: flex; max-width: 1400px;
+  margin: 0 auto; padding: 0 40px;
+}
+.sidebar {
+  width: 248px; flex-shrink: 0;
+  padding: 40px 32px 40px 0;
+  position: sticky; top: 116px;
+  height: calc(100vh - 116px); overflow-y: auto;
+}
+.sidebar-section { margin-bottom: 28px; }
+.sidebar-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--ink4);
+  margin-bottom: 8px; padding-left: 8px;
+}
+.sidebar-item {
+  display: block; padding: 7px 10px; border-radius: 6px;
+  font-size: 12px; color: var(--ink3); text-decoration: none;
+  transition: all 0.15s; cursor: pointer;
+  border: none; background: none; width: 100%; text-align: left;
+}
+.sidebar-item:hover { background: var(--bg2); color: var(--ink); }
+.sidebar-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+.sidebar-item .item-dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; margin-right: 8px; margin-bottom: 1px;
+  vertical-align: middle;
+}
+.content {
+  flex: 1; min-width: 0;
+  padding: 40px 0 80px 40px;
+  border-left: 1px solid var(--border);
+}
+
+/* ── SECTIONS ── */
+.doc-section {
+  margin-bottom: 64px;
+  scroll-margin-top: 120px;
+}
+.section-eyebrow {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.10em; color: var(--accent); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-eyebrow::before {
+  content: ''; display: inline-block; width: 20px; height: 2px;
+  background: var(--accent); border-radius: 1px;
+}
+.section-title {
+  font-family: var(--heading); font-size: 32px; font-weight: 700;
+  color: var(--ink); line-height: 1.15; margin-bottom: 8px;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+.section-lead {
+  font-size: 17px; color: var(--ink3);
+  line-height: 1.6; margin-bottom: 32px; max-width: 700px;
+}
+.divider { height: 1px; background: var(--border); margin: 48px 0; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: var(--shadow-sm); overflow: hidden;
+  margin-bottom: 16px;
+}
+.card-head {
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.card-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.card-head-text .card-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.card-head-text .card-sub   { font-size: 12px; color: var(--ink4); }
+.card-body { padding: 22px; }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-radius: 10px; padding: 16px 20px; margin: 20px 0;
+  border-left: 3px solid; display: flex; gap: 12px;
+}
+.callout-blue   { background: var(--accent-light);  border-color: var(--accent); }
+.callout-green  { background: var(--emerald-light); border-color: var(--emerald); }
+.callout-amber  { background: var(--amber-light);   border-color: var(--amber); }
+.callout-rose   { background: var(--rose-light);    border-color: var(--rose); }
+.callout-purple { background: var(--purple-light);  border-color: var(--purple); }
+.callout-icon   { font-size: 18px; flex-shrink: 0; }
+.callout-text   { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+.callout-text strong { color: var(--ink); }
+
+/* ── CHIPS ── */
+.chip {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 600; font-family: var(--mono);
+  padding: 2px 8px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: 0.05em; margin: 0 2px;
+}
+.chip-green  { background: var(--emerald-light); color: var(--emerald); }
+.chip-blue   { background: var(--accent-light);  color: var(--accent); }
+.chip-amber  { background: var(--amber-light);   color: var(--amber); }
+.chip-red    { background: var(--rose-light);    color: var(--rose); }
+.chip-purple { background: var(--purple-light);  color: var(--purple); }
+.chip-gray   { background: var(--bg2);           color: var(--ink3); }
+.chip-dark   { background: var(--ink);           color: white; }
+
+/* ── TABLES ── */
+.doc-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; margin: 16px 0;
+}
+.doc-table th {
+  text-align: left; padding: 10px 14px;
+  background: var(--bg2);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink4);
+  border-bottom: 1px solid var(--border2);
+}
+.doc-table td {
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  color: var(--ink2); vertical-align: top;
+}
+.doc-table tr:last-child td { border-bottom: none; }
+.doc-table tr:hover td { background: var(--bg); }
+.doc-table .mono { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+
+/* ── CODE BLOCKS ── */
+.code-block {
+  background: var(--ink); border-radius: 10px;
+  padding: 20px 22px; margin: 16px 0; overflow-x: auto;
+  position: relative;
+}
+.code-block pre {
+  font-family: var(--mono); font-size: 12px;
+  line-height: 1.75; color: #c8d4e8; white-space: pre;
+}
+.code-block .kw   { color: #7eb8ff; }
+.code-block .str  { color: #98e4a8; }
+.code-block .cm   { color: #4d6070; font-style: italic; }
+.code-block .prop { color: #ffcf7e; }
+.code-block .num  { color: #f09879; }
+.code-block .fn   { color: #c792ea; }
+.code-block .dec  { color: #89ddff; }
+.code-label {
+  font-family: var(--mono); font-size: 10px; color: var(--ink4);
+  margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+}
+.code-label .lang-tag {
+  background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px;
+  color: rgba(255,255,255,0.5); font-size: 10px;
+}
+
+/* ── GRIDS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+/* ── STEP LISTS ── */
+.step-list { display: flex; flex-direction: column; gap: 0; }
+.step-item {
+  display: flex; gap: 16px; padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.step-item:last-child { border-bottom: none; }
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ink); color: white;
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px; font-family: var(--mono);
+}
+.step-content .step-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.step-content .step-desc  { font-size: 13px; color: var(--ink3); line-height: 1.5; }
+.step-content .step-meta  { font-family: var(--mono); font-size: 11px; color: var(--accent); margin-top: 6px; }
+
+/* ── TYPOGRAPHY ── */
+h3 {
+  font-family: var(--heading); font-size: 22px; font-weight: 600;
+  color: var(--ink); margin: 32px 0 12px;
+}
+h4 {
+  font-size: 14px; font-weight: 600; color: var(--ink2);
+  margin: 24px 0 8px; letter-spacing: 0.01em;
+}
+p { color: var(--ink2); margin-bottom: 14px; font-size: 14px; line-height: 1.65; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 600; color: var(--ink); }
+code {
+  font-family: var(--mono); font-size: 11px;
+  background: var(--bg2); color: var(--accent);
+  padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border);
+}
+.footnote { font-size: 12px; color: var(--ink4); font-style: italic; margin-top: 12px; }
+
+/* ── STACK VISUAL ── */
+.stack-layer {
+  display: flex; align-items: stretch; gap: 0;
+  margin-bottom: 4px; border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border); background: var(--surface);
+  transition: all 0.2s;
+}
+.stack-layer:hover { box-shadow: var(--shadow); transform: translateX(4px); }
+.stack-layer-badge {
+  width: 5px; flex-shrink: 0;
+}
+.stack-layer-content {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 20px; flex: 1;
+}
+.stack-layer-num {
+  font-family: var(--mono); font-size: 10px; color: var(--ink4);
+  width: 24px; flex-shrink: 0; text-align: center;
+}
+.stack-layer-label {
+  font-size: 13px; font-weight: 600; color: var(--ink); width: 160px; flex-shrink: 0;
+}
+.stack-layer-tech {
+  font-family: var(--mono); font-size: 11px; color: var(--ink3); flex: 1;
+}
+.stack-layer-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* ── AGENT ANATOMY DIAGRAM ── */
+.anatomy-diagram {
+  background: var(--ink); border-radius: 14px; padding: 32px;
+  position: relative; overflow: hidden; margin: 24px 0;
+}
+.anatomy-diagram::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(26,79,214,0.2) 0%, transparent 55%),
+    radial-gradient(circle at 85% 50%, rgba(91,33,182,0.15) 0%, transparent 55%);
+}
+.anatomy-inner { position: relative; z-index: 1; }
+.anatomy-title {
+  font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.4);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px;
+}
+.anatomy-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+}
+.anatomy-box {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; padding: 16px;
+  background: rgba(255,255,255,0.04);
+}
+.anatomy-box-label {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+}
+.anatomy-box-name {
+  font-family: var(--heading); font-size: 15px; color: white;
+  margin-bottom: 4px;
+}
+.anatomy-box-tech {
+  font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.4);
+}
+.anatomy-arrow {
+  text-align: center; padding: 8px 0;
+  font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.3);
+  letter-spacing: 0.05em;
+}
+
+/* ── INSIGHT CARDS ── */
+.insight-card {
+  background: white; border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s; position: relative; overflow: hidden;
+}
+.insight-card:hover { box-shadow: var(--shadow); }
+.insight-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; border-radius: 12px 12px 0 0;
+}
+.insight-card.blue::before   { background: var(--accent); }
+.insight-card.green::before  { background: var(--emerald); }
+.insight-card.amber::before  { background: var(--amber); }
+.insight-card.purple::before { background: var(--purple); }
+.insight-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink4); margin-bottom: 6px; }
+.insight-value { font-family: var(--heading); font-size: 26px; font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 4px; }
+.insight-sub   { font-size: 12px; color: var(--ink3); }
+
+/* ── AI STRIP ── */
+.ai-insights-strip {
+  background: linear-gradient(135deg, #f0f4ff 0%, #f7f5ff 100%);
+  border: 1px solid #dde6ff; border-radius: 12px;
+  padding: 14px 18px; margin-bottom: 24px;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.ai-strip-icon {
+  width: 32px; height: 32px; background: var(--accent);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0; margin-top: 2px;
+}
+.ai-strip-title { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+.ai-strip-items { display: flex; gap: 16px; flex-wrap: wrap; }
+.ai-strip-item { font-size: 13px; color: var(--ink2); display: flex; align-items: center; gap: 6px; }
+.ai-strip-item::before { content: '◆'; font-size: 7px; color: var(--accent); }
+
+/* ── COMPARISON BOX ── */
+.compare-box {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0;
+}
+.compare-col { padding: 20px; }
+.compare-col:first-child { border-right: 1px solid var(--border); }
+.compare-col-head { font-size: 12px; font-weight: 600; color: var(--ink4); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; }
+.compare-item { display: flex; gap: 8px; font-size: 13px; color: var(--ink2); margin-bottom: 8px; line-height: 1.4; }
+.compare-item::before { content: '→'; color: var(--accent); font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+
+/* ── FOOTER ── */
+.page-footer { background: var(--ink); padding: 40px 0; margin-top: 60px; }
+.footer-inner { max-width: 1400px; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+.footer-brand { font-family: var(--heading); font-size: 18px; color: white; }
+.footer-brand em { font-style: italic; color: #d4b06a; }
+.footer-meta { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.3); }
+
+</style>
+</head>
+<body>
+
+<!-- ══ TOPNAV ══ -->
+<nav class="topnav">
+  <div class="nav-brand">
+    <div class="nav-logo">DM</div>
+    <div>
+      <div class="nav-title">Data <span>Management</span></div>
+      <div class="nav-subtitle">ADLC Agent Technology</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" href="#overview">Overview</a>
+    <a class="nav-link" href="#anatomy">Anatomy</a>
+    <a class="nav-link" href="#stack">Tech Stack</a>
+    <a class="nav-link" href="#deepdive">Deep Dive</a>
+    <a class="nav-link" href="#patterns">Patterns</a>
+  </div>
+  <div class="nav-right">
+    <span class="chip chip-purple">Agent-Powered</span>
+    <span class="doc-badge">Tech Ref v1.0</span>
+  </div>
+</nav>
+
+<!-- ══ SECTION NAV ══ -->
+<div class="section-nav">
+  <div class="snav-item active" onclick="scrollToSection('#overview')">01 · What is an agent</div>
+  <div class="snav-item" onclick="scrollToSection('#anatomy')">02 · Agent anatomy</div>
+  <div class="snav-item" onclick="scrollToSection('#stack')">03 · Technology stack</div>
+  <div class="snav-item" onclick="scrollToSection('#llm')">04 · LLM layer</div>
+  <div class="snav-item" onclick="scrollToSection('#tools')">05 · Tool use</div>
+  <div class="snav-item" onclick="scrollToSection('#memory')">06 · Memory &amp; state</div>
+  <div class="snav-item" onclick="scrollToSection('#bus')">07 · Message bus</div>
+  <div class="snav-item" onclick="scrollToSection('#deepdive')">08 · Agent walkthroughs</div>
+  <div class="snav-item" onclick="scrollToSection('#patterns')">09 · Patterns &amp; principles</div>
+</div>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">// ADLC Technical Reference · Agent Architecture · v1.0</div>
+    <h1 class="hero-title">How the <em>Agents</em><br>Are Built</h1>
+    <p class="hero-sub">A complete technical reference — from executive concept through production code — covering every language, framework, and pattern used to build the eight specialist agents in the ADLC.</p>
+    <div class="hero-chips">
+      <span class="hero-chip">Python 3.11</span>
+      <span class="hero-chip">Claude API</span>
+      <span class="hero-chip">FastAPI</span>
+      <span class="hero-chip">Apache Kafka</span>
+      <span class="hero-chip">Redis</span>
+      <span class="hero-chip">PostgreSQL</span>
+      <span class="hero-chip">TypeScript / React</span>
+      <span class="hero-chip">Kubernetes</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAIN LAYOUT ══ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Conceptual</div>
+      <a class="sidebar-item active" href="#overview">
+        <span class="item-dot" style="background:var(--accent)"></span>What is an agent
+      </a>
+      <a class="sidebar-item" href="#anatomy">
+        <span class="item-dot" style="background:var(--accent)"></span>Agent anatomy
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Tech Stack</div>
+      <a class="sidebar-item" href="#stack">
+        <span class="item-dot" style="background:var(--purple)"></span>Stack overview
+      </a>
+      <a class="sidebar-item" href="#llm">
+        <span class="item-dot" style="background:var(--purple)"></span>LLM layer
+      </a>
+      <a class="sidebar-item" href="#tools">
+        <span class="item-dot" style="background:var(--emerald)"></span>Tool use
+      </a>
+      <a class="sidebar-item" href="#memory">
+        <span class="item-dot" style="background:var(--emerald)"></span>Memory &amp; state
+      </a>
+      <a class="sidebar-item" href="#bus">
+        <span class="item-dot" style="background:var(--amber)"></span>Message bus
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Code Deep Dive</div>
+      <a class="sidebar-item" href="#deepdive">
+        <span class="item-dot" style="background:var(--accent)"></span>Agent walkthroughs
+      </a>
+      <a class="sidebar-item" href="#req-code">
+        <span class="item-dot" style="background:var(--accent)"></span>REQ-AGENT code
+      </a>
+      <a class="sidebar-item" href="#de-code">
+        <span class="item-dot" style="background:var(--emerald)"></span>DE-AGENT code
+      </a>
+      <a class="sidebar-item" href="#qe-code">
+        <span class="item-dot" style="background:var(--amber)"></span>QE-AGENT code
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Principles</div>
+      <a class="sidebar-item" href="#patterns">
+        <span class="item-dot" style="background:var(--ink3)"></span>Patterns &amp; principles
+      </a>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ══ SECTION 1: OVERVIEW ══ -->
+    <section id="overview" class="doc-section">
+      <div class="section-eyebrow">Conceptual Overview</div>
+      <div class="section-title">What is an <em>Agent</em>?</div>
+      <div class="section-lead">
+        An ADLC agent is not a script or a workflow. It is an autonomous software process that combines a large language model's reasoning with structured tools, persistent memory, and a messaging interface — enabling it to solve open-ended domain problems without step-by-step human instruction.
+      </div>
+
+      <div class="ai-insights-strip">
+        <div class="ai-strip-icon">🤖</div>
+        <div>
+          <div class="ai-strip-title">The one-sentence definition</div>
+          <div class="ai-strip-items">
+            <div class="ai-strip-item">Agent = LLM brain + Python tools + Redis memory + Kafka I/O</div>
+          </div>
+        </div>
+      </div>
+
+      <p>Think of each agent as a specialist contractor. The <strong>LLM (Claude)</strong> provides the reasoning, judgement, and language skills. <strong>Python functions</strong> (called "tools") give it hands — the ability to actually query databases, run tests, generate code files, and call APIs. <strong>Redis</strong> gives it a notepad to remember what it's doing mid-task. <strong>Kafka</strong> is the internal post room: it receives work from upstream agents and dispatches its completed artefacts downstream.</p>
+
+      <p>Critically, no agent is hard-coded with IF/THEN logic for its domain. The REQ-AGENT does not contain a list of question templates. The QE-AGENT does not contain a fixed test catalogue. Instead, each agent is given a <strong>system prompt that defines its role</strong>, access to domain-specific tools, and the current task context — and it figures out what to do from there. This is what makes it agentic rather than scripted.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon" style="background:var(--rose-light);">❌</div>
+            <div class="card-head-text">
+              <div class="card-title">Not what agents are</div>
+              <div class="card-sub">Common misconceptions</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="compare-item">A Python script with hardcoded logic</div>
+            <div class="compare-item">A workflow with fixed decision branches</div>
+            <div class="compare-item">A chatbot that waits for human input</div>
+            <div class="compare-item">A single LLM API call that returns text</div>
+            <div class="compare-item">An RPA bot replaying recorded actions</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon" style="background:var(--emerald-light);">✓</div>
+            <div class="card-head-text">
+              <div class="card-title">What agents actually are</div>
+              <div class="card-sub">The correct mental model</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="compare-item">An LLM that can call structured Python functions</div>
+            <div class="compare-item">A process that loops: think → act → observe → repeat</div>
+            <div class="compare-item">Autonomous within a phase; human-gated between phases</div>
+            <div class="compare-item">Stateful across multi-step tasks via external memory</div>
+            <div class="compare-item">A microservice that publishes typed artefacts</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>The think → act → observe loop</h3>
+      <p>Every ADLC agent operates on the same fundamental loop — often called the ReAct pattern (Reasoning + Acting). This loop repeats until the agent determines it has produced a complete, valid artefact and emits it to the message bus.</p>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Think — LLM reasons about the task</div>
+            <div class="step-desc">Claude receives the system prompt (defining the agent's role and constraints), the task context (project ID, upstream artefacts), and any tool results from previous iterations. It reasons about what needs to happen next and decides whether to call a tool or produce final output.</div>
+            <div class="step-meta">claude-sonnet-4-6 · messages API · ~800ms per reasoning step</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Act — Python executes the chosen tool</div>
+            <div class="step-desc">If Claude's response contains a <code>tool_use</code> block, the Python runtime calls the corresponding function with Claude's chosen parameters. Tools are real functions — they run SQL queries, call APIs, read files, execute test suites, or generate code. They are not simulated.</div>
+            <div class="step-meta">Python 3.11 · asyncio · actual I/O operations</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Observe — tool result fed back to Claude</div>
+            <div class="step-desc">The tool's return value is appended to the conversation as a <code>tool_result</code> message. Claude can now see the outcome of its action — e.g. the actual row count and null percentage from a profiling query — and decides what to do next. This creates a genuine feedback loop rather than a single-shot response.</div>
+            <div class="step-meta">tool_result role · structured JSON · typed Pydantic models</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Emit — artefact published to Kafka</div>
+            <div class="step-desc">When Claude determines the task is complete, it produces a structured JSON artefact (validated against a Pydantic schema). The Python runtime serialises this with Avro and publishes it to the appropriate Kafka topic. The orchestrator picks it up, updates gate state, and triggers the downstream agent if a gate has been approved.</div>
+            <div class="step-meta">confluent-kafka-python · Avro serialisation · Schema Registry</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 2: ANATOMY ══ -->
+    <section id="anatomy" class="doc-section">
+      <div class="section-eyebrow">Architecture</div>
+      <div class="section-title">Agent <em>Anatomy</em></div>
+      <div class="section-lead">
+        Every ADLC agent — regardless of its domain — is assembled from the same four components. Domain knowledge lives in the system prompt and tool set, not in bespoke code. This uniformity means the same runtime infrastructure supports all eight agents.
+      </div>
+
+      <div class="anatomy-diagram">
+        <div class="anatomy-inner">
+          <div class="anatomy-title">// ADLC Agent — universal component structure</div>
+          <div class="anatomy-row">
+            <div class="anatomy-box">
+              <div class="anatomy-box-label" style="color:#7eb8ff;">01 — Brain</div>
+              <div class="anatomy-box-name">LLM Layer</div>
+              <div class="anatomy-box-tech">Claude Sonnet 4.6<br>Anthropic Messages API<br>Tool use enabled<br>System prompt = role</div>
+            </div>
+            <div class="anatomy-box">
+              <div class="anatomy-box-label" style="color:#98e4a8;">02 — Hands</div>
+              <div class="anatomy-box-name">Tool Layer</div>
+              <div class="anatomy-box-tech">Python functions<br>Pydantic-typed I/O<br>Domain-specific per agent<br>Real external calls</div>
+            </div>
+            <div class="anatomy-box">
+              <div class="anatomy-box-label" style="color:#ffcf7e;">03 — Memory</div>
+              <div class="anatomy-box-name">State Layer</div>
+              <div class="anatomy-box-tech">Redis (live context)<br>PostgreSQL (audit log)<br>S3 (artefact store)<br>24h TTL per project</div>
+            </div>
+            <div class="anatomy-box">
+              <div class="anatomy-box-label" style="color:#c792ea;">04 — Voice</div>
+              <div class="anatomy-box-name">I/O Layer</div>
+              <div class="anatomy-box-tech">Kafka (events in/out)<br>FastAPI (HTTP trigger)<br>Avro + Schema Registry<br>WebSocket (UI stream)</div>
+            </div>
+          </div>
+          <div class="anatomy-arrow">↑ All four components are injected at init — agents carry no hardcoded domain logic ↑</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <h3>The <code>BaseAgent</code> class</h3>
+          <p>All eight ADLC agents inherit from a single <code>BaseAgent</code> class. This base class wires the four components together and implements the think → act → observe loop. Each specific agent only needs to define: its system prompt, its tool set, and its output artefact schema. Nothing else is agent-specific at the infrastructure level.</p>
+          <div class="callout callout-blue">
+            <div class="callout-icon">ℹ</div>
+            <div class="callout-text">
+              <strong>Why inheritance over composition here?</strong> Because all agents share an identical execution model. Composition would have been appropriate if agents had meaningfully different loop structures — but they don't. The only variation is in prompts and tools.
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>Domain knowledge lives in prompts</h3>
+          <p>The REQ-AGENT's ability to elicit requirements is not encoded in Python. It is encoded in a carefully crafted system prompt that defines the agent's persona, methodology, output format, and escalation rules. The Python code is identical infrastructure for all agents.</p>
+          <div class="callout callout-green">
+            <div class="callout-icon">💡</div>
+            <div class="callout-text">
+              <strong>Key insight:</strong> Adding a ninth agent to the ADLC requires writing a new system prompt, a new set of tools, and a new Pydantic artefact schema — not new infrastructure code. The runtime is fully reusable.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 3: STACK ══ -->
+    <section id="stack" class="doc-section">
+      <div class="section-eyebrow">Technology</div>
+      <div class="section-title">The Full <em>Tech Stack</em></div>
+      <div class="section-lead">
+        Eight layers, each with a clear job. The stack is deliberately mainstream — every component is production-proven, has a rich ecosystem, and is already in use across most enterprise data platforms.
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <!-- Layer 1 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:var(--purple);"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L1</div>
+            <div class="stack-layer-label">LLM / Reasoning</div>
+            <div class="stack-layer-tech">Claude Sonnet 4.6 · Anthropic Messages API · Tool use · Streaming</div>
+            <div class="stack-layer-chips"><span class="chip chip-purple">Claude API</span></div>
+          </div>
+        </div>
+        <!-- Layer 2 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:var(--amber);"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L2</div>
+            <div class="stack-layer-label">Agent Runtime</div>
+            <div class="stack-layer-tech">Python 3.11 · asyncio · Pydantic v2 · anthropic-sdk-python 0.28</div>
+            <div class="stack-layer-chips"><span class="chip chip-amber">Python</span></div>
+          </div>
+        </div>
+        <!-- Layer 3 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:var(--accent);"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L3</div>
+            <div class="stack-layer-label">API Gateway</div>
+            <div class="stack-layer-tech">FastAPI 0.111 · Uvicorn · WebSocket for live log streaming</div>
+            <div class="stack-layer-chips"><span class="chip chip-blue">FastAPI</span></div>
+          </div>
+        </div>
+        <!-- Layer 4 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:#e84393;"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L4</div>
+            <div class="stack-layer-label">Message Bus</div>
+            <div class="stack-layer-tech">Apache Kafka (MSK) · Avro serialisation · Confluent Schema Registry</div>
+            <div class="stack-layer-chips"><span class="chip chip-red">Kafka</span></div>
+          </div>
+        </div>
+        <!-- Layer 5 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:var(--emerald);"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L5</div>
+            <div class="stack-layer-label">Live State</div>
+            <div class="stack-layer-tech">Redis 7 (ElastiCache) · Per-project session context · 24h TTL</div>
+            <div class="stack-layer-chips"><span class="chip chip-green">Redis</span></div>
+          </div>
+        </div>
+        <!-- Layer 6 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:var(--ink3);"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L6</div>
+            <div class="stack-layer-label">Persistence</div>
+            <div class="stack-layer-tech">PostgreSQL 15 (RDS) · SQLAlchemy 2 · Alembic migrations · Immutable audit log</div>
+            <div class="stack-layer-chips"><span class="chip chip-gray">Postgres</span></div>
+          </div>
+        </div>
+        <!-- Layer 7 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:var(--accent);"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L7</div>
+            <div class="stack-layer-label">Operator UI</div>
+            <div class="stack-layer-tech">TypeScript 5 · React 18 · Vite · Zustand · React Query · Tailwind CSS</div>
+            <div class="stack-layer-chips"><span class="chip chip-blue">TypeScript</span></div>
+          </div>
+        </div>
+        <!-- Layer 8 -->
+        <div class="stack-layer">
+          <div class="stack-layer-badge" style="background:var(--ink2);"></div>
+          <div class="stack-layer-content">
+            <div class="stack-layer-num">L8</div>
+            <div class="stack-layer-label">Infrastructure</div>
+            <div class="stack-layer-tech">AWS EKS · Terraform 1.7 · Docker · GitHub Actions CI/CD · Secrets Manager</div>
+            <div class="stack-layer-chips"><span class="chip chip-dark">AWS / K8s</span></div>
+          </div>
+        </div>
+      </div>
+
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Technology</th>
+            <th>Version</th>
+            <th>Why this choice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>LLM provider</strong></td>
+            <td><span class="chip chip-purple">Claude Sonnet 4.6</span></td>
+            <td class="mono">claude-sonnet-4-6</td>
+            <td>Best-in-class tool use, structured JSON output, and large context window (200k tokens) needed for analysing full source schemas and generating pipeline code in one pass.</td>
+          </tr>
+          <tr>
+            <td><strong>Agent language</strong></td>
+            <td><span class="chip chip-amber">Python 3.11</span></td>
+            <td class="mono">3.11.9</td>
+            <td>Anthropic SDK, data tooling (pandas, great_expectations, dbt), DB connectors, and Kafka client all have first-class Python support. asyncio eliminates blocking I/O across multi-tool execution.</td>
+          </tr>
+          <tr>
+            <td><strong>Validation</strong></td>
+            <td><span class="chip chip-amber">Pydantic v2</span></td>
+            <td class="mono">2.7.1</td>
+            <td>All artefacts — inputs and outputs — are Pydantic models. This gives compile-time type safety, automatic JSON serialisation, and the ability to auto-generate TypeScript types for the React UI via pydantic-to-typescript.</td>
+          </tr>
+          <tr>
+            <td><strong>API framework</strong></td>
+            <td><span class="chip chip-blue">FastAPI</span></td>
+            <td class="mono">0.111</td>
+            <td>Native async, automatic OpenAPI docs, WebSocket support for streaming agent logs to the UI, and tight Pydantic integration for request/response validation.</td>
+          </tr>
+          <tr>
+            <td><strong>Message broker</strong></td>
+            <td><span class="chip chip-red">Apache Kafka</span></td>
+            <td class="mono">MSK 3.6</td>
+            <td>Decouples agents so a slow or restarting agent does not block the upstream. Persistent topics provide a full replay log. Avro + Schema Registry enforces contract compatibility across deployments.</td>
+          </tr>
+          <tr>
+            <td><strong>Live state</strong></td>
+            <td><span class="chip chip-green">Redis 7</span></td>
+            <td class="mono">ElastiCache</td>
+            <td>Sub-millisecond reads for conversation history and phase context during the multi-iteration think→act loop. TTL-based expiry prevents stale state accumulating across projects.</td>
+          </tr>
+          <tr>
+            <td><strong>Audit store</strong></td>
+            <td><span class="chip chip-gray">PostgreSQL 15</span></td>
+            <td class="mono">RDS 15.4</td>
+            <td>All gate approvals, agent executions, and artefact hashes written as immutable append-only rows. Full audit trail required by PCI-DSS compliance on the target platform.</td>
+          </tr>
+          <tr>
+            <td><strong>Frontend</strong></td>
+            <td><span class="chip chip-blue">TypeScript + React</span></td>
+            <td class="mono">TS 5 / React 18</td>
+            <td>TypeScript types auto-generated from Python Pydantic models keep UI and backend in sync. React Query manages artefact fetching and cache invalidation. WebSocket hook delivers live agent logs.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 4: LLM LAYER ══ -->
+    <section id="llm" class="doc-section">
+      <div class="section-eyebrow">Tech Stack — Layer 1</div>
+      <div class="section-title">The <em>LLM Layer</em></div>
+      <div class="section-lead">
+        Claude Sonnet 4.6 is the reasoning engine inside every agent. It receives a rich context — the system prompt, conversation history, tool results — and decides what to do next. It never writes to a database or calls an API directly; those actions belong to the tool layer.
+      </div>
+
+      <h3>System prompts define agent identity</h3>
+      <p>Each agent has a unique system prompt that acts as its complete operating manual. The prompt specifies the agent's role, the methodology it must follow, the exact format of its output artefact, the conditions under which it must escalate to a human rather than guessing, and the quality bar its output must clear before emitting. The system prompt is version-controlled alongside the code and reviewed at every gate.</p>
+
+      <div class="code-block">
+        <div class="code-label">
+          <span>req_agent/prompts/system.py · System prompt (abbreviated)</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="cm"># The system prompt is a constant — loaded once at agent init</span>
+<span class="cm"># Full version is ~800 tokens; this shows the key sections</span>
+
+REQ_AGENT_SYSTEM_PROMPT = <span class="str">"""
+You are REQ-AGENT, the Requirements Gathering specialist in the
+Agentic Development Lifecycle (ADLC) for the Data Management Team.
+
+## Your mandate
+Elicit, synthesise, and formalise all requirements for a data
+management solution into a sealed Functional Specification Document
+(FSD). You operate in Phase 01 of the ADLC.
+
+## Your methodology
+1. Load all available project context using get_project_context()
+2. Identify information gaps and request missing data using
+   request_stakeholder_input() — do NOT assume missing information
+3. For each requirement, classify: priority (P1/P2/P3),
+   type (functional/non-functional/compliance/data), domain
+4. Detect conflicts using detect_requirement_conflicts() and
+   flag ALL unresolvable conflicts — never silently resolve them
+5. Produce the FSD using produce_fsd_artefact()
+
+## Escalation rules
+You MUST escalate (call escalate_to_human()) and halt if:
+- Two P1 requirements directly contradict each other
+- A regulatory constraint cannot be satisfied within stated scope
+- A stakeholder has not confirmed their requirements after 2 prompts
+- Source system access has not been granted within the task context
+
+## Output contract
+Your final artefact MUST be a valid FSDArtefact (Pydantic schema).
+Do not produce partial artefacts. Do not omit mandatory fields.
+The artefact is SEALED on production — no post-hoc changes.
+"""</span></pre>
+      </div>
+
+      <h3>The Messages API call structure</h3>
+      <p>Every iteration of the think→act loop makes a single call to <code>anthropic.messages.create()</code>. The conversation history grows with each iteration as tool results are appended. Claude sees the full history of what it has already tried and what the results were, enabling it to course-correct and make informed decisions about subsequent tool calls.</p>
+
+      <div class="code-block">
+        <div class="code-label">
+          <span>base_agent.py · Core LLM call inside the execution loop</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">import</span> anthropic
+<span class="kw">from</span> typing <span class="kw">import</span> AsyncIterator
+
+<span class="kw">class</span> <span class="fn">BaseAgent</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, config: <span class="fn">AgentConfig</span>):
+        self.client = anthropic.<span class="fn">AsyncAnthropic</span>()
+        self.config = config          <span class="cm"># holds system_prompt, tools, artefact_schema</span>
+        self.redis  = <span class="fn">RedisStore</span>()
+        self.kafka  = <span class="fn">KafkaBus</span>()
+
+    <span class="kw">async def</span> <span class="fn">_think</span>(
+        self,
+        messages: list[dict],
+        tools: list[dict]
+    ) -> anthropic.types.<span class="fn">Message</span>:
+        <span class="str">"""One reasoning step — Claude decides: call a tool, or emit final output."""</span>
+        <span class="kw">return await</span> self.client.messages.<span class="fn">create</span>(
+            model=<span class="str">"claude-sonnet-4-6"</span>,
+            max_tokens=<span class="num">4096</span>,
+            system=self.config.system_prompt,
+            tools=tools,
+            messages=messages,
+        )
+
+    <span class="kw">async def</span> <span class="fn">run</span>(self, task: <span class="fn">Task</span>) -> <span class="fn">Artefact</span>:
+        <span class="str">"""Main execution loop: think → act → observe → repeat."""</span>
+        ctx      = <span class="kw">await</span> self.redis.<span class="fn">load_context</span>(task.project_id)
+        messages = <span class="fn">build_initial_messages</span>(task, ctx)
+        tools    = self.config.<span class="fn">get_tool_schemas</span>()
+
+        <span class="kw">while True</span>:
+            response = <span class="kw">await</span> self.<span class="fn">_think</span>(messages, tools)
+
+            <span class="cm"># Claude chose to call one or more tools</span>
+            <span class="kw">if</span> response.stop_reason == <span class="str">"tool_use"</span>:
+                tool_results = <span class="kw">await</span> self.<span class="fn">_execute_tools</span>(response.content)
+                messages = <span class="fn">append_tool_results</span>(messages, response.content, tool_results)
+                <span class="kw">continue</span>
+
+            <span class="cm"># Claude produced final text output — parse it as an artefact</span>
+            <span class="kw">if</span> response.stop_reason == <span class="str">"end_turn"</span>:
+                artefact = self.config.artefact_schema.<span class="fn">parse_llm_output</span>(response)
+                <span class="kw">await</span> self.kafka.<span class="fn">emit_artefact</span>(task.handoff_topic, artefact)
+                <span class="kw">return</span> artefact</pre>
+      </div>
+
+      <div class="callout callout-amber">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-text">
+          <strong>Why <code>claude-sonnet-4-6</code> specifically?</strong> Three reasons: (1) its tool use reliability is significantly higher than smaller models, reducing loop iterations; (2) its 200k context window lets the DE-AGENT hold the entire data model, all business rules, and the pipeline code it's generating in a single context; (3) its JSON output consistency is high enough that Pydantic validation rarely requires retries.
+        </div>
+      </div>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 5: TOOLS ══ -->
+    <section id="tools" class="doc-section">
+      <div class="section-eyebrow">Tech Stack — Layer 2</div>
+      <div class="section-title">Tool Use — Agent <em>Hands</em></div>
+      <div class="section-lead">
+        Tools are ordinary Python functions decorated with a Pydantic schema that describes their signature to Claude. When Claude calls a tool, the Python runtime executes the actual function and returns the result. This is how agents interact with the real world — databases, file systems, APIs, test runners.
+      </div>
+
+      <h3>How tool use works</h3>
+      <p>The Anthropic Messages API accepts a <code>tools</code> parameter — a list of JSON schemas describing each available function. Claude reads these schemas and, when it decides an action is needed, returns a <code>tool_use</code> content block specifying which function to call and with what arguments. The Python runtime matches this to the actual function and executes it. The result is sent back as a <code>tool_result</code> message.</p>
+
+      <div class="code-block">
+        <div class="code-label">
+          <span>da_agent/tools/profiler.py · A real tool used by the DA-AGENT</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field
+<span class="kw">from</span> adlc.tools <span class="kw">import</span> tool, ToolResult
+<span class="kw">import</span> sqlalchemy <span class="kw">as</span> sa
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># --- Input schema (what Claude must provide) ---</span>
+<span class="kw">class</span> <span class="fn">ProfileTableInput</span>(BaseModel):
+    source_system: str = Field(..., description=<span class="str">"Source system ID from the data domain map"</span>)
+    table_name:    str = Field(..., description=<span class="str">"Fully-qualified table name to profile"</span>)
+    sample_rows:   int = Field(<span class="num">1_000_000</span>, description=<span class="str">"Row sample size for profiling"</span>)
+    columns:       list[str] | None = Field(None, description=<span class="str">"Specific columns, or None for all"</span>)
+
+<span class="cm"># --- Output schema (what Python returns to Claude) ---</span>
+<span class="kw">class</span> <span class="fn">ProfileTableResult</span>(BaseModel):
+    row_count:        int
+    column_profiles:  list[<span class="fn">ColumnProfile</span>]  <span class="cm"># completeness, cardinality, min/max, nulls</span>
+    detected_pk:      str | None             <span class="cm"># inferred primary key candidate</span>
+    quality_warnings: list[str]              <span class="cm"># e.g. "amount col has 2.1% nulls"</span>
+
+<span class="cm"># --- The @tool decorator registers this with the agent's tool registry ---</span>
+<span class="dec">@tool</span>(
+    name=<span class="str">"profile_table"</span>,
+    description=<span class="str">"Run a statistical data quality profile on a source table. "</span>
+                <span class="str">"Returns completeness, uniqueness, cardinality, and anomaly warnings."</span>
+)
+<span class="kw">async def</span> <span class="fn">profile_table</span>(inp: <span class="fn">ProfileTableInput</span>) -> <span class="fn">ProfileTableResult</span>:
+    engine = <span class="fn">get_source_engine</span>(inp.source_system)  <span class="cm"># read-only credentials from Secrets Manager</span>
+    <span class="kw">async with</span> engine.<span class="fn">connect</span>() <span class="kw">as</span> conn:
+        df = <span class="kw">await</span> conn.<span class="fn">run_sync</span>(
+            <span class="kw">lambda</span> c: pd.<span class="fn">read_sql</span>(
+                f<span class="str">"SELECT * FROM {inp.table_name} TABLESAMPLE SYSTEM(10) LIMIT {inp.sample_rows}"</span>,
+                c
+            )
+        )
+    profiles  = [<span class="fn">build_column_profile</span>(df, col) <span class="kw">for</span> col <span class="kw">in</span> df.columns]
+    pk        = <span class="fn">infer_primary_key</span>(df)
+    warnings  = [p.warning <span class="kw">for</span> p <span class="kw">in</span> profiles <span class="kw">if</span> p.warning]
+    <span class="kw">return</span> <span class="fn">ProfileTableResult</span>(
+        row_count=len(df), column_profiles=profiles,
+        detected_pk=pk, quality_warnings=warnings
+    )</pre>
+      </div>
+
+      <h3>Tool registries per agent</h3>
+      <p>Each agent has a <code>ToolRegistry</code> — the set of tools it is permitted to use. The registry determines what Claude can do within that agent's scope. This is by design: the REQ-AGENT cannot accidentally call a database directly because it does not have database tools. The only agent that can run code is the DE-AGENT. The only agent that can deploy infrastructure is the DEP-AGENT.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Agent</th><th>Tools (selection)</th><th>What they can touch</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="chip chip-blue">REQ</span></td>
+            <td class="mono">get_project_context, request_stakeholder_input, detect_conflicts, produce_fsd_artefact, escalate_to_human</td>
+            <td>Project registry (read), Slack API (message), S3 (write FSD)</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-purple">WIRE</span></td>
+            <td class="mono">load_fsd, generate_wireframe_svg, build_data_flow_diagram, build_er_map, export_design_pack</td>
+            <td>S3 (read FSD, write SVGs/JSON), no database access</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-blue">BA</span></td>
+            <td class="mono">load_fsd_and_wireframes, formalise_business_rule, validate_rule_traceability, produce_br_register</td>
+            <td>S3 (read, write), no external system access</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-green">DA</span></td>
+            <td class="mono">profile_table, infer_schema, detect_join_keys, build_logical_data_model, generate_data_contract, run_ba_da_sync</td>
+            <td>Source DBs (read-only), S3 (write contracts/LDM)</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-green">DE</span></td>
+            <td class="mono">generate_dbt_model, generate_ingestion_connector, generate_openapi_spec, run_unit_tests, write_to_git</td>
+            <td>S3 (read contracts), GitHub API (write code), Dev DB (read/write)</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-amber">QE</span></td>
+            <td class="mono">run_integration_tests, measure_dq_dimensions, run_performance_load_test, produce_g5_signoff, route_failures</td>
+            <td>Staging DB (read), test runner, S3 (write reports)</td>
+          </tr>
+          <tr>
+            <td><span class="chip chip-red">DEP</span></td>
+            <td class="mono">apply_terraform, run_migrations, deploy_dbt_pipelines, switch_traffic_blue_green, run_smoke_tests, trigger_rollback</td>
+            <td>AWS (full), Kubernetes API, Production DB (migrations only)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 6: MEMORY ══ -->
+    <section id="memory" class="doc-section">
+      <div class="section-eyebrow">Tech Stack — Layer 3</div>
+      <div class="section-title">Memory &amp; <em>State</em></div>
+      <div class="section-lead">
+        Agents are stateless microservices — they hold no in-process state between requests. All memory is externalised across three stores, each serving a different time horizon: Redis for hot in-flight context, PostgreSQL for permanent audit records, and S3 for artefact content.
+      </div>
+
+      <div class="grid-3">
+        <div class="insight-card blue">
+          <div class="insight-label">⬡ Hot store</div>
+          <div class="insight-value">Redis</div>
+          <div class="insight-sub">Conversation history, phase status, artefact URIs. 24h TTL.</div>
+        </div>
+        <div class="insight-card green">
+          <div class="insight-label">⬡ Cold store</div>
+          <div class="insight-value">PostgreSQL</div>
+          <div class="insight-sub">Gate approvals, agent runs, artefact hashes. Immutable append-only.</div>
+        </div>
+        <div class="insight-card amber">
+          <div class="insight-label">⬡ Artefact store</div>
+          <div class="insight-value">S3</div>
+          <div class="insight-sub">All phase outputs: FSD, contracts, code, reports. Versioned buckets.</div>
+        </div>
+      </div>
+
+      <h3>Redis: conversation history for multi-step tasks</h3>
+      <p>A single agent phase often requires multiple LLM iterations — the DA-AGENT might make 8–12 tool calls across three source tables before it has enough data to build a complete logical model. Redis stores the growing <code>messages</code> list between iterations, so each <code>_think()</code> call receives full context of every action taken so far. This is what enables genuine reasoning-across-steps rather than each call starting fresh.</p>
+
+      <div class="code-block">
+        <div class="code-label">
+          <span>state/redis_store.py · Loading and persisting agent context</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">from</span> redis.asyncio <span class="kw">import</span> Redis
+<span class="kw">from</span> adlc.models <span class="kw">import</span> AgentContext
+
+<span class="kw">class</span> <span class="fn">RedisStore</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.r = Redis.<span class="fn">from_url</span>(settings.REDIS_URL, decode_responses=<span class="kw">True</span>)
+        self.TTL = <span class="num">86_400</span>  <span class="cm"># 24 hours</span>
+
+    <span class="kw">async def</span> <span class="fn">load_context</span>(self, project_id: str) -> <span class="fn">AgentContext</span>:
+        raw = <span class="kw">await</span> self.r.<span class="fn">get</span>(f<span class="str">"ctx:{project_id}"</span>)
+        <span class="kw">if not</span> raw:
+            <span class="kw">return</span> <span class="fn">AgentContext</span>(project_id=project_id, messages=[], artefacts={})
+        <span class="kw">return</span> <span class="fn">AgentContext</span>.<span class="fn">model_validate_json</span>(raw)
+
+    <span class="kw">async def</span> <span class="fn">save_context</span>(self, ctx: <span class="fn">AgentContext</span>) -> <span class="kw">None</span>:
+        <span class="cm"># Serialise full context including growing messages list</span>
+        <span class="kw">await</span> self.r.<span class="fn">setex</span>(
+            name=f<span class="str">"ctx:{ctx.project_id}"</span>,
+            time=self.TTL,
+            value=ctx.<span class="fn">model_dump_json</span>()
+        )
+
+    <span class="kw">async def</span> <span class="fn">append_tool_result</span>(
+        self, project_id: str,
+        tool_call: dict, tool_result: dict
+    ) -> <span class="kw">None</span>:
+        <span class="cm"># Atomic append to messages list — avoids race conditions</span>
+        ctx = <span class="kw">await</span> self.<span class="fn">load_context</span>(project_id)
+        ctx.messages.append({<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: [tool_call]})
+        ctx.messages.append({<span class="str">"role"</span>: <span class="str">"user"</span>,      <span class="str">"content"</span>: [tool_result]})
+        <span class="kw">await</span> self.<span class="fn">save_context</span>(ctx)</pre>
+      </div>
+
+      <h3>PostgreSQL: the immutable audit log</h3>
+      <p>Every gate approval, every agent execution, and every artefact hash is written to PostgreSQL as an immutable append-only record. This is not just good practice — the target platform's PCI-DSS compliance requires a complete, tamper-evident audit trail of all data management decisions. The schema uses <code>INSERT</code> only; there are no <code>UPDATE</code> or <code>DELETE</code> operations on audit tables.</p>
+
+      <div class="code-block">
+        <div class="code-label">
+          <span>db/models.py · PostgreSQL schema (SQLAlchemy 2 declarative)</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">from</span> sqlalchemy.orm <span class="kw">import</span> DeclarativeBase, mapped_column, Mapped
+<span class="kw">from</span> sqlalchemy <span class="kw">import</span> String, DateTime, JSON, func
+
+<span class="kw">class</span> <span class="fn">GateApproval</span>(Base):
+    <span class="str">"""Immutable record of every human gate approval."""</span>
+    __tablename__ = <span class="str">"gate_approvals"</span>
+
+    id:           Mapped[int]      = mapped_column(primary_key=<span class="kw">True</span>, autoincrement=<span class="kw">True</span>)
+    project_id:   Mapped[str]      = mapped_column(<span class="fn">String</span>(<span class="num">64</span>), nullable=<span class="kw">False</span>)
+    gate_id:      Mapped[str]      = mapped_column(<span class="fn">String</span>(<span class="num">8</span>),  nullable=<span class="kw">False</span>)  <span class="cm"># G1..G5</span>
+    approver_id:  Mapped[str]      = mapped_column(<span class="fn">String</span>(<span class="num">64</span>), nullable=<span class="kw">False</span>)
+    checklist:    Mapped[dict]     = mapped_column(<span class="fn">JSON</span>,        nullable=<span class="kw">False</span>)
+    approved_at:  Mapped[datetime] = mapped_column(<span class="fn">DateTime</span>(timezone=<span class="kw">True</span>), server_default=<span class="fn">func.now</span>())
+    <span class="cm"># NO updated_at, NO delete flag — this table is append-only</span>
+
+<span class="kw">class</span> <span class="fn">AgentExecution</span>(Base):
+    <span class="str">"""One row per agent phase execution — includes artefact SHA256."""</span>
+    __tablename__ = <span class="str">"agent_executions"</span>
+
+    id:            Mapped[int]  = mapped_column(primary_key=<span class="kw">True</span>, autoincrement=<span class="kw">True</span>)
+    project_id:    Mapped[str]  = mapped_column(<span class="fn">String</span>(<span class="num">64</span>))
+    agent_id:      Mapped[str]  = mapped_column(<span class="fn">String</span>(<span class="num">32</span>))   <span class="cm"># REQ-AGENT, DE-AGENT etc.</span>
+    artefact_uri:  Mapped[str]  = mapped_column(<span class="fn">String</span>(<span class="num">512</span>))  <span class="cm"># s3://adlc/proj/artefact.json</span>
+    artefact_sha:  Mapped[str]  = mapped_column(<span class="fn">String</span>(<span class="num">64</span>))   <span class="cm"># SHA-256 of artefact content</span>
+    llm_tokens:    Mapped[int]  = mapped_column()               <span class="cm"># total tokens used in phase</span>
+    tool_calls:    Mapped[int]  = mapped_column()               <span class="cm"># number of tool calls made</span>
+    executed_at:   Mapped[datetime] = mapped_column(<span class="fn">DateTime</span>(timezone=<span class="kw">True</span>), server_default=<span class="fn">func.now</span>())</pre>
+      </div>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 7: BUS ══ -->
+    <section id="bus" class="doc-section">
+      <div class="section-eyebrow">Tech Stack — Layer 4</div>
+      <div class="section-title">The Kafka <em>Message Bus</em></div>
+      <div class="section-lead">
+        Agent handoffs are not HTTP calls. They are events on a Kafka message bus — typed with Avro schemas, validated by the Schema Registry, and consumed by the downstream agent when it is ready. This decoupling is what makes the ADLC resilient and observable.
+      </div>
+
+      <div class="callout callout-blue">
+        <div class="callout-icon">🔁</div>
+        <div class="callout-text">
+          <strong>Why Kafka over direct HTTP?</strong> If the WIRE-AGENT is restarting when REQ-AGENT finishes, a direct HTTP call fails and the work is lost. With Kafka, the event sits in the topic until WIRE-AGENT is healthy and consumes it. The ADLC never loses a completed phase's work due to a transient failure in the next agent.
+        </div>
+      </div>
+
+      <h3>Topic structure</h3>
+      <p>Each of the 14 handoff events in the lifecycle maps to a dedicated Kafka topic. Topic names follow the pattern <code>adlc.handoff.{from}-to-{to}</code>. Feedback loop topics (QE routing failures back to DE) use <code>adlc.feedback.{from}-to-{to}</code>.</p>
+
+      <div class="code-block">
+        <div class="code-label">
+          <span>messaging/topics.py · Topic definitions and Avro schema binding</span>
+          <span class="lang-tag">Python</span>
+        </div>
+        <pre><span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> confluent_kafka.schema_registry <span class="kw">import</span> SchemaRegistryClient
+<span class="kw">from</span> confluent_kafka.schema_registry.avro <span class="kw">import</span> AvroSerializer, AvroDeserializer
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="fn">KafkaTopic</span>:
+    name:        str
+    avro_schema: str    <span class="cm"># Avro schema JSON string</span>
+    partitions:  int = <span class="num">3</span>
+    replication: int = <span class="num">3</span>
+
+<span class="cm"># All 14 ADLC handoff topics — forward passes</span>
+TOPICS = {
+    <span class="str">"req_to_wire"</span>: <span class="fn">KafkaTopic</span>(
+        name=<span class="str">"adlc.handoff.req-to-wire"</span>,
+        avro_schema=<span class="fn">load_schema</span>(<span class="str">"schemas/fsd_artefact.avsc"</span>)
+    ),
+    <span class="str">"wire_to_analysis"</span>: <span class="fn">KafkaTopic</span>(
+        name=<span class="str">"adlc.handoff.wire-to-analysis"</span>,
+        avro_schema=<span class="fn">load_schema</span>(<span class="str">"schemas/design_pack.avsc"</span>)
+    ),
+    <span class="str">"analysis_to_build"</span>: <span class="fn">KafkaTopic</span>(
+        name=<span class="str">"adlc.handoff.analysis-to-build"</span>,
+        avro_schema=<span class="fn">load_schema</span>(<span class="str">"schemas/analysis_seal.avsc"</span>)
+    ),
+    <span class="str">"build_to_qe"</span>: <span class="fn">KafkaTopic</span>(
+        name=<span class="str">"adlc.handoff.build-to-qe"</span>,
+        avro_schema=<span class="fn">load_schema</span>(<span class="str">"schemas/build_pack.avsc"</span>)
+    ),
+    <span class="str">"qe_to_deploy"</span>: <span class="fn">KafkaTopic</span>(
+        name=<span class="str">"adlc.handoff.qe-to-deploy"</span>,
+        avro_schema=<span class="fn">load_schema</span>(<span class="str">"schemas/qe_signoff.avsc"</span>)
+    ),
+    <span class="cm"># Feedback (remediation) topics</span>
+    <span class="str">"qe_to_de_feedback"</span>: <span class="fn">KafkaTopic</span>(
+        name=<span class="str">"adlc.feedback.qe-to-de"</span>,
+        avro_schema=<span class="fn">load_schema</span>(<span class="str">"schemas/failure_routing_pack.avsc"</span>)
+    ),
+    <span class="str">"dep_to_qe_rollback"</span>: <span class="fn">KafkaTopic</span>(
+        name=<span class="str">"adlc.feedback.dep-to-qe-rollback"</span>,
+        avro_schema=<span class="fn">load_schema</span>(<span class="str">"schemas/rollback_event.avsc"</span>)
+    ),
+}</pre>
+      </div>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 8: DEEP DIVE ══ -->
+    <section id="deepdive" class="doc-section">
+      <div class="section-eyebrow">Code Deep Dive</div>
+      <div class="section-title">Three Agents <em>Walked Through</em></div>
+      <div class="section-lead">
+        The following walkthroughs show the full implementation of three representative agents — REQ-AGENT (discovery), DE-AGENT (builder), and QE-AGENT (gatekeeper) — from system prompt through tool execution to artefact emission.
+      </div>
+
+      <!-- REQ AGENT -->
+      <section id="req-code">
+        <h3>REQ-AGENT — Requirements Gathering</h3>
+        <p>The simplest agent in terms of tool footprint, but the most consequential: a poor FSD cascades failures through every downstream phase. REQ-AGENT's tools are deliberately narrow — it cannot query databases or write code. Its only instruments are: reading project context, requesting stakeholder input, and detecting requirement conflicts.</p>
+
+        <div class="code-block">
+          <div class="code-label">
+            <span>req_agent/agent.py · Complete REQ-AGENT class</span>
+            <span class="lang-tag">Python</span>
+          </div>
+          <pre><span class="kw">from</span> adlc.base <span class="kw">import</span> BaseAgent, AgentConfig
+<span class="kw">from</span> adlc.models <span class="kw">import</span> Task, FSDArtefact
+<span class="kw">from</span> .prompts   <span class="kw">import</span> REQ_AGENT_SYSTEM_PROMPT
+<span class="kw">from</span> .tools     <span class="kw">import</span> (
+    get_project_context,
+    request_stakeholder_input,
+    detect_requirement_conflicts,
+    escalate_to_human,
+    produce_fsd_artefact,
+)
+
+<span class="kw">class</span> <span class="fn">RequirementsAgent</span>(<span class="fn">BaseAgent</span>):
+    <span class="str">"""Phase 01 — REQ-AGENT. Produces FSDArtefact."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        <span class="fn">super()</span>.<span class="fn">__init__</span>(<span class="fn">AgentConfig</span>(
+            agent_id       = <span class="str">"REQ-AGENT"</span>,
+            system_prompt  = REQ_AGENT_SYSTEM_PROMPT,
+            artefact_schema= <span class="fn">FSDArtefact</span>,
+            handoff_topic  = <span class="str">"adlc.handoff.req-to-wire"</span>,
+            tools          = [
+                get_project_context,
+                request_stakeholder_input,
+                detect_requirement_conflicts,
+                escalate_to_human,
+                produce_fsd_artefact,
+            ]
+        ))
+
+<span class="cm"># ─── FastAPI endpoint (each agent is a microservice) ──────────────────────────</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI, BackgroundTasks
+app = <span class="fn">FastAPI</span>(title=<span class="str">"REQ-AGENT"</span>, version=<span class="str">"1.4.0"</span>)
+agent = <span class="fn">RequirementsAgent</span>()
+
+<span class="dec">@app.post</span>(<span class="str">"/run"</span>, response_model=<span class="fn">FSDArtefact</span>)
+<span class="kw">async def</span> <span class="fn">run_agent</span>(task: <span class="fn">Task</span>, bg: <span class="fn">BackgroundTasks</span>):
+    <span class="cm"># Stream live log events to the operator UI via WebSocket</span>
+    bg.<span class="fn">add_task</span>(agent.kafka.<span class="fn">stream_logs</span>, task.project_id)
+    <span class="kw">return await</span> agent.<span class="fn">run</span>(task)
+
+<span class="dec">@app.get</span>(<span class="str">"/health"</span>)
+<span class="kw">async def</span> <span class="fn">health</span>(): <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"ok"</span>, <span class="str">"agent"</span>: <span class="str">"REQ-AGENT"</span>}</pre>
+        </div>
+      </section>
+
+      <!-- DE AGENT -->
+      <section id="de-code">
+        <h3>DE-AGENT — Data Engineering</h3>
+        <p>The most technically complex agent. It receives sealed data contracts and a logical data model and must generate production-grade dbt SQL, ingestion connectors, and OpenAPI specs — all in a single phase. It uses a <code>generate_dbt_model</code> tool that renders Jinja2 templates seeded with data contract fields, then runs the model through a schema validator before writing to Git.</p>
+
+        <div class="code-block">
+          <div class="code-label">
+            <span>de_agent/tools/dbt_generator.py · Generating a dbt model from a data contract</span>
+            <span class="lang-tag">Python</span>
+          </div>
+          <pre><span class="kw">from</span> jinja2 <span class="kw">import</span> Environment, FileSystemLoader
+<span class="kw">from</span> adlc.tools <span class="kw">import</span> tool
+<span class="kw">from</span> adlc.models <span class="kw">import</span> DataContract, DbtModel
+<span class="kw">import</span> dbt.parser <span class="kw">as</span> dbt_parser
+
+<span class="kw">class</span> <span class="fn">GenerateDbtModelInput</span>(BaseModel):
+    contract_id:    str   = Field(..., description=<span class="str">"Data contract ID e.g. dc-fact-transactions-v1"</span>)
+    materialisation: str  = Field(<span class="str">"incremental"</span>, description=<span class="str">"table | view | incremental"</span>)
+    include_br_hooks: bool = Field(<span class="kw">True</span>, description=<span class="str">"Add BR-006 mandatory field pre-hooks"</span>)
+
+<span class="kw">class</span> <span class="fn">GenerateDbtModelResult</span>(BaseModel):
+    model_name:     str
+    sql_content:    str        <span class="cm"># rendered SQL with Jinja2 macros</span>
+    schema_yaml:    str        <span class="cm"># dbt schema.yml with column-level tests</span>
+    test_count:     int        <span class="cm"># auto-generated test cases</span>
+    schema_valid:   bool       <span class="cm"># passed dbt parse validation</span>
+    git_commit_sha: str | None <span class="cm"># committed to feature branch</span>
+
+<span class="dec">@tool</span>(name=<span class="str">"generate_dbt_model"</span>,
+      description=<span class="str">"Generate a dbt SQL model from a sealed data contract. "</span>
+                  <span class="str">"Includes incremental logic, BR-006 mandatory field hooks, and schema tests."</span>)
+<span class="kw">async def</span> <span class="fn">generate_dbt_model</span>(inp: <span class="fn">GenerateDbtModelInput</span>) -> <span class="fn">GenerateDbtModelResult</span>:
+    contract = <span class="kw">await</span> <span class="fn">load_contract</span>(inp.contract_id)   <span class="cm"># reads from S3</span>
+    jinja    = <span class="fn">Environment</span>(<span class="fn">FileSystemLoader</span>(<span class="str">"de_agent/templates"</span>))
+
+    <span class="cm"># Render the SQL template — injects contract fields, SLA config, BR hooks</span>
+    sql = jinja.<span class="fn">get_template</span>(<span class="str">"incremental_model.sql.j2"</span>).<span class="fn">render</span>(
+        contract        = contract,
+        mandatory_fields= contract.<span class="fn">get_mandatory_fields</span>(),
+        freshness_sla   = contract.sla.freshness_max_min,
+        unique_key      = contract.<span class="fn">get_primary_key</span>(),
+    )
+    <span class="cm"># Render schema.yml with column tests derived from quality thresholds</span>
+    schema = jinja.<span class="fn">get_template</span>(<span class="str">"schema.yml.j2"</span>).<span class="fn">render</span>(
+        contract = contract,
+        tests    = <span class="fn">build_column_tests</span>(contract)
+    )
+    <span class="cm"># Validate: dbt parse must succeed before we commit</span>
+    parse_result = <span class="kw">await</span> dbt_parser.<span class="fn">parse_model</span>(sql, schema)
+    <span class="kw">if not</span> parse_result.valid:
+        <span class="kw">raise</span> <span class="fn">ToolError</span>(f<span class="str">"dbt parse failed: {parse_result.errors}"</span>)
+
+    commit_sha = <span class="kw">await</span> <span class="fn">commit_to_git</span>(contract.id, sql, schema)
+    <span class="kw">return</span> <span class="fn">GenerateDbtModelResult</span>(
+        model_name=contract.asset_name, sql_content=sql, schema_yaml=schema,
+        test_count=len(<span class="fn">build_column_tests</span>(contract)),
+        schema_valid=<span class="kw">True</span>, git_commit_sha=commit_sha
+    )</pre>
+        </div>
+      </section>
+
+      <!-- QE AGENT -->
+      <section id="qe-code">
+        <h3>QE-AGENT — Quality Engineering</h3>
+        <p>The gatekeeper. QE-AGENT has two critical responsibilities: proving that all 31 acceptance criteria are met, and blocking the lifecycle if they are not. Its <code>route_failures</code> tool is what enables targeted remediation — rather than declaring the entire build phase failed, it produces a structured <code>FailureRoutingPackage</code> that tells the DE-AGENT exactly which model, which rule, and which column needs fixing.</p>
+
+        <div class="code-block">
+          <div class="code-label">
+            <span>qe_agent/tools/dq_scorer.py · Measuring the 5 DQ dimensions</span>
+            <span class="lang-tag">Python</span>
+          </div>
+          <pre><span class="kw">from</span> great_expectations <span class="kw">import</span> get_context
+<span class="kw">from</span> great_expectations.core <span class="kw">import</span> ExpectationSuite
+<span class="kw">from</span> adlc.tools <span class="kw">import</span> tool
+
+<span class="kw">class</span> <span class="fn">MeasureDQInput</span>(BaseModel):
+    contract_id:  str
+    environment:  str = <span class="str">"staging"</span>
+    sample_rows:  int = <span class="num">10_000_000</span>
+
+<span class="kw">class</span> <span class="fn">DQScorecard</span>(BaseModel):
+    completeness: float    <span class="cm"># % non-null on mandatory fields</span>
+    accuracy:     float    <span class="cm"># % records passing all BR evaluations</span>
+    consistency:  float    <span class="cm"># % cross-system reconciliation match rate</span>
+    timeliness:   float    <span class="cm"># % records within freshness SLA</span>
+    uniqueness:   float    <span class="cm"># % unique on primary key columns</span>
+    overall_pass: bool     <span class="cm"># True only if ALL dimensions >= threshold</span>
+    failures:     list[<span class="fn">DQFailure</span>]
+
+<span class="dec">@tool</span>(name=<span class="str">"measure_dq_dimensions"</span>,
+      description=<span class="str">"Measure all 5 DQ dimensions against a sealed data contract. "</span>
+                  <span class="str">"Returns per-dimension scores and a pass/fail for G5 gate eligibility."</span>)
+<span class="kw">async def</span> <span class="fn">measure_dq_dimensions</span>(inp: <span class="fn">MeasureDQInput</span>) -> <span class="fn">DQScorecard</span>:
+    contract = <span class="kw">await</span> <span class="fn">load_contract</span>(inp.contract_id)
+    ctx      = <span class="fn">get_context</span>()  <span class="cm"># great_expectations context</span>
+
+    <span class="cm"># Build GE expectation suite from contract quality_rules</span>
+    suite = <span class="fn">ExpectationSuite</span>(expectation_suite_name=contract.id)
+    <span class="kw">for</span> rule <span class="kw">in</span> contract.quality_rules:
+        suite.<span class="fn">add_expectation</span>(<span class="fn">rule_to_expectation</span>(rule))
+
+    <span class="cm"># Run validations against staging DB — real SQL executed by GE</span>
+    results = ctx.<span class="fn">run_validation_operator</span>(
+        <span class="str">"action_list_operator"</span>,
+        assets_to_validate=[<span class="fn">get_staging_batch</span>(contract, inp.sample_rows)],
+        run_id=f<span class="str">"qe-{contract.id}-{datetime.utcnow().isoformat()}"</span>
+    )
+
+    <span class="cm"># Compute dimension scores from GE results</span>
+    completeness = <span class="fn">score_completeness</span>(results, contract.mandatory_fields)
+    accuracy     = <span class="fn">score_accuracy</span>(results,     contract.quality_rules)
+    consistency  = <span class="fn">score_consistency</span>(results,   contract.id)
+    timeliness   = <span class="fn">score_timeliness</span>(results,    contract.sla.freshness_max_min)
+    uniqueness   = <span class="fn">score_uniqueness</span>(results,    contract.primary_key)
+
+    thresholds = contract.quality_thresholds
+    overall    = (
+        completeness >= thresholds.completeness <span class="kw">and</span>
+        accuracy     >= thresholds.accuracy     <span class="kw">and</span>
+        consistency  >= thresholds.consistency  <span class="kw">and</span>
+        timeliness   >= thresholds.timeliness   <span class="kw">and</span>
+        uniqueness   >= thresholds.uniqueness
+    )
+    <span class="kw">return</span> <span class="fn">DQScorecard</span>(
+        completeness=completeness, accuracy=accuracy,
+        consistency=consistency,  timeliness=timeliness,
+        uniqueness=uniqueness,     overall_pass=overall,
+        failures=<span class="fn">collect_failures</span>(results)
+    )</pre>
+        </div>
+      </section>
+    </section>
+    <div class="divider"></div>
+
+    <!-- ══ SECTION 9: PATTERNS ══ -->
+    <section id="patterns" class="doc-section">
+      <div class="section-eyebrow">Engineering Principles</div>
+      <div class="section-title">Patterns &amp; <em>Principles</em></div>
+      <div class="section-lead">
+        Seven engineering principles govern how every ADLC agent is written. These are not guidelines — they are enforced at code review and checked by static analysis in the CI pipeline.
+      </div>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">P1</div>
+          <div class="step-content">
+            <div class="step-title">No domain logic in Python — it lives in prompts</div>
+            <div class="step-desc">Python code in agents must be infrastructure-only: wiring, I/O, validation, serialisation. If you find yourself writing an IF statement that encodes a business rule — "if requirement has no owner, flag it" — that logic belongs in the system prompt, not the code. This keeps agents flexible: behaviour changes are a prompt update, not a deployment.</div>
+            <div class="step-meta">Enforced by: code review checklist · pylint custom rule</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">P2</div>
+          <div class="step-content">
+            <div class="step-title">Every tool input and output is a Pydantic model</div>
+            <div class="step-desc">No <code>dict</code> or <code>Any</code> at tool boundaries. Every tool's input and output is a typed Pydantic model with field-level documentation. This serves two purposes: Claude gets accurate schema documentation (it reads the field descriptions when deciding what to pass), and the Python runtime gets automatic validation — malformed tool calls fail fast with a clear error rather than silently producing garbage.</div>
+            <div class="step-meta">Enforced by: mypy strict · pydantic-validator CI check</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">P3</div>
+          <div class="step-content">
+            <div class="step-title">Agents are stateless — all state is externalised</div>
+            <div class="step-desc">An agent process must be killable and restartable at any point without data loss. No in-memory state that cannot be reconstructed from Redis, PostgreSQL, or S3. This enables zero-downtime deployments, horizontal scaling (multiple pods for the same agent), and clean crash recovery — the agent just reloads its context from Redis and resumes where it left off.</div>
+            <div class="step-meta">Enforced by: k8s liveness probe · chaos testing in staging</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">P4</div>
+          <div class="step-content">
+            <div class="step-title">Escalate rather than hallucinate</div>
+            <div class="step-desc">Every agent's system prompt explicitly defines the conditions under which it must call <code>escalate_to_human()</code> and halt. An agent must never resolve ambiguity by guessing. Uncertainty in the LLM's reasoning is a feature — if Claude is not confident about a requirement conflict or a schema interpretation, the correct action is to surface that uncertainty to a human, not to pick the most plausible answer and continue.</div>
+            <div class="step-meta">Enforced by: prompt review · escalation rate monitoring (target: under 8%)</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">P5</div>
+          <div class="step-content">
+            <div class="step-title">Tool calls are idempotent</div>
+            <div class="step-desc">Every tool must be safe to call multiple times with the same arguments. If the DA-AGENT's pod restarts mid-phase and it re-calls <code>profile_table()</code> on a table it already profiled, it must return the same result and not create duplicate records. This is enforced by content-addressable artefact storage (SHA-256 keyed) and upsert-not-insert semantics in all write operations.</div>
+            <div class="step-meta">Enforced by: idempotency unit tests · idempotency-key header on all S3 writes</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">P6</div>
+          <div class="step-content">
+            <div class="step-title">Artefact schemas are versioned and backward-compatible</div>
+            <div class="step-desc">Every Pydantic artefact model and Avro schema in the Confluent Schema Registry follows semantic versioning. A change that adds a new optional field is a minor version bump and is backward-compatible. A change that removes a field or changes a type is a major version bump, requires a new topic, and cannot be deployed without a coordinated rollout of both producer and consumer agents. The Schema Registry enforces compatibility rules automatically.</div>
+            <div class="step-meta">Enforced by: Schema Registry compatibility check · pre-commit schema lint</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">P7</div>
+          <div class="step-content">
+            <div class="step-title">Every agent is independently testable</div>
+            <div class="step-desc">Each agent ships with a mock client that replaces the real Anthropic API with a deterministic stub for unit testing. Tool functions are tested with real external calls against a local Docker Compose stack (PostgreSQL, Redis, Kafka, stub S3). Integration tests run against a full staging environment. No agent's test suite depends on another agent being deployed — isolation is a first-class constraint.</div>
+            <div class="step-meta">Enforced by: CI pipeline gate · coverage threshold: 80% per agent</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-purple">
+        <div class="callout-icon">🎯</div>
+        <div class="callout-text">
+          <strong>The meta-principle behind all seven:</strong> The ADLC agents are designed to be boring infrastructure for remarkable capability. The interesting work — domain expertise, reasoning, judgement — belongs to Claude. The Python code exists only to give Claude reliable, safe, typed tools to act on that reasoning in the real world. Keep the two concerns cleanly separated and the system stays maintainable as both the LLM and the domain evolve.
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer class="page-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Data Management <em>ADLC</em></div>
+    <div class="footer-meta">Agent Technology Reference v1.0 · Technical Distribution · Data Management Team</div>
+  </div>
+</footer>
+
+<script>
+function scrollToSection(id) {
+  const el = document.querySelector(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const sections    = document.querySelectorAll('.doc-section[id]');
+const sidebarItems = document.querySelectorAll('.sidebar-item');
+const snavItems   = document.querySelectorAll('.snav-item');
+const navLinks    = document.querySelectorAll('.nav-link');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = '#' + entry.target.id;
+      sidebarItems.forEach(i => i.classList.toggle('active', i.getAttribute('href') === id));
+    }
+  });
+}, { rootMargin: '-15% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+document.querySelectorAll('.nav-link[href^="#"], .sidebar-item[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+document.querySelectorAll('.snav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    snavItems.forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+// Topnav link sync
+const topObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const map = {'overview':'Overview','anatomy':'Overview','stack':'Stack','llm':'Stack','tools':'Stack','memory':'Stack','bus':'Stack','deepdive':'Deep Dive','req-code':'Deep Dive','de-code':'Deep Dive','qe-code':'Deep Dive','patterns':'Patterns'};
+      const label = map[entry.target.id];
+      if (label) {
+        navLinks.forEach(l => l.classList.toggle('active', l.textContent.trim() === label));
+      }
+    }
+  });
+}, { rootMargin: '-10% 0px -80% 0px' });
+sections.forEach(s => topObserver.observe(s));
+</script>
+</body>
+</html>

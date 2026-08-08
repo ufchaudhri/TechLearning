@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tech Learning — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="Executive-ready learning paths and concise briefs to accelerate AI and tech literacy.">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html">
+        <img src="assets/logo.svg" alt="Tech Learning" class="brand-logo">
+        <span class="brand-text">Tech Learning</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">☰</button>
+      <nav class="nav" id="siteNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="learning.html">Learning</a></li>
+          <li><a href="prototypes.html">Prototypes</a></li>
+          <li><a href="#resources">Resources</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Build your AI & Tech fluency</h1>
+        <p class="lead">Executive-ready learning paths and concise briefs to accelerate understanding and decision-making.</p>
+        <p class="cta-row">
+          <a class="btn primary" href="ai-concepts-brief.html">Read a Brief</a>
+          <a class="btn ghost" href="ai-fluency-plan.html">See Learning Plans</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="features container">
+      <article>
+        <h2>Concise Briefs</h2>
+        <p>One-page summaries that give leaders the facts and implications fast.</p>
+      </article>
+      <article>
+        <h2>Structured Learning</h2>
+        <p>Practical multi-week plans to develop team competence and strategy.</p>
+      </article>
+      <article>
+        <h2>Leadership Guides</h2>
+        <p>Guidance for executives and managers to steer adoption responsibly.</p>
+      </article>
+    </section>
+
+    <section id="resources" class="container resources">
+      <h3>Featured Pages</h3>
+      <ul class="resource-list">
+        <li><a href="learning.html">Learning index — AI & Tech topics</a></li>
+        <li><a href="ai-concepts-brief.html">AI Concepts — Brief</a></li>
+        <li><a href="ai-fluency-plan.html">AI Fluency Plan</a></li>
+        <li><a href="ai-leadership-plan.html">AI Leadership Plan</a></li>
+        <li><a href="#">Future: Applied AI Workshops</a></li>
+        <li><a href="#">Future: Team Assessment Toolkit</a></li>
+      </ul>
+    </section>
+
+    <section id="contact" class="container contact">
+      <h3>Contact</h3>
+      <p>Interested in a custom learning path? <a href="mailto:you@example.com">you@example.com</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>&copy; <span id="year">2026</span> Tech Learning — All rights reserved.</p>
+      <nav>
+        <a href="about.html">About</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const siteNav = document.getElementById('siteNav');
+    navToggle.addEventListener('click', () => {
+      siteNav.classList.toggle('open');
+    });
+
+    // update year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
